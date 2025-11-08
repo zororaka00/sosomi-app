@@ -129,9 +129,9 @@
               <div class="info-label">Timestamp</div>
               <div class="info-value">
                 <span v-if="transaction.timestamp">
-                  {{ formatTimestamp(transaction.timestamp) }}
+                  {{ formatTimestamp(transaction.timestamp) }}&nbsp;
                   <span class="text-grey-6">
-                    ({{ getTimeAgo(transaction.timestamp) }})
+                    ({{ chainStore.getTimeAgo(transaction.timestamp) }})
                   </span>
                 </span>
                 <span v-else class="text-grey-6">Pending...</span>
@@ -152,7 +152,7 @@
             <div v-if="transaction.gasUsed" class="info-row">
               <div class="info-label">Gas Used</div>
               <div class="info-value">
-                {{ transaction.gasUsed.toString() }}
+                {{ transaction.gasUsed.toString() }}&nbsp;
                 <span v-if="transactionCost" class="text-grey-6">
                   ({{ transactionCost.formattedCost }} {{ currentChain?.chain.nativeCurrency.symbol }})
                 </span>
@@ -206,28 +206,28 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
+import { storeToRefs } from 'pinia';
 import type { Hash } from 'viem';
-import { useTransaction } from '../composables/useTransaction';
-import { useChain } from '../composables/useChain';
+import { useChainStore } from '../stores/chain-store';
 import BaseCard from '../components/BaseCard.vue';
 import WalletAddressChip from '../components/WalletAddressChip.vue';
 
 const route = useRoute();
 const router = useRouter();
 
-const { getTransaction, getTransactionType, calculateTransactionCost, getTimeAgo, loading, error } = useTransaction();
-const { currentChain } = useChain();
+const chainStore = useChainStore();
+const { currentChain, loading, error } = storeToRefs(chainStore);
 
-const transaction = ref<Awaited<ReturnType<typeof getTransaction>> | null>(null);
+const transaction = ref<Awaited<ReturnType<typeof chainStore.getTransaction>> | null>(null);
 
 const txType = computed(() => {
   if (!transaction.value) return 'Unknown';
-  return getTransactionType(transaction.value.input);
+  return chainStore.getTransactionType(transaction.value.input);
 });
 
 const transactionCost = computed(() => {
   if (!transaction.value?.gasUsed || !transaction.value?.gasPrice) return null;
-  return calculateTransactionCost(transaction.value.gasUsed, transaction.value.gasPrice);
+  return chainStore.calculateTransactionCost(transaction.value.gasUsed, transaction.value.gasPrice);
 });
 
 const formatTimestamp = (timestamp: bigint): string => {
@@ -242,7 +242,7 @@ const navigateToAddress = (address: string) => {
 const loadTransaction = async () => {
   const hash = route.params.hash as Hash;
   try {
-    transaction.value = await getTransaction(hash);
+    transaction.value = await chainStore.getTransaction(hash);
   } catch (err) {
     console.error('Failed to load transaction:', err);
   }

@@ -118,10 +118,11 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
+import { ref, computed } from 'vue';
 import { useRouter } from 'vue-router';
 import { isAddress, isHash } from 'viem';
 import { Notify } from 'quasar';
+import { storeToRefs } from 'pinia';
 import BaseCard from '../components/BaseCard.vue';
 import { useSearchStore } from '../stores/search-store';
 
@@ -131,8 +132,8 @@ const searchStore = useSearchStore();
 const searchQuery = ref('');
 const searching = ref(false);
 
-// Use store for recent searches
-const recentSearches = searchStore.recentSearches;
+// Use storeToRefs for reactive access
+const { recentSearches } = storeToRefs(searchStore);
 
 const examples = [
   {
@@ -208,6 +209,13 @@ const addToRecentSearches = (query: string, type: 'Transaction' | 'Wallet' | 'Co
 
 const clearRecentSearches = () => {
   searchStore.clearSearchHistory();
+  Notify.create({
+    message: 'Search history cleared',
+    color: 'positive',
+    icon: 'check_circle',
+    position: 'top',
+    timeout: 2000
+  });
 };
 
 const getSearchTypeIcon = (type: string): string => {

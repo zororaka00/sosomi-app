@@ -169,10 +169,10 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
+import { storeToRefs } from 'pinia';
 import { type Address, isAddress as viemIsAddress } from 'viem';
 import { Notify } from 'quasar';
-import { useWallet } from '../composables/useWallet';
-import { useChain } from '../composables/useChain';
+import { useChainStore } from '../stores/chain-store';
 import BaseCard from '../components/BaseCard.vue';
 import WalletAddressChip from '../components/WalletAddressChip.vue';
 import TokenRow from '../components/TokenRow.vue';
@@ -180,10 +180,10 @@ import TokenRow from '../components/TokenRow.vue';
 const route = useRoute();
 const router = useRouter();
 
-const { getWalletInfo, isContract, getTokenBalance, loading, error } = useWallet();
-const { currentChain } = useChain();
+const chainStore = useChainStore();
+const { currentChain, loading, error } = storeToRefs(chainStore);
 
-const walletInfo = ref<Awaited<ReturnType<typeof getWalletInfo>> | null>(null);
+const walletInfo = ref<Awaited<ReturnType<typeof chainStore.getWalletInfo>> | null>(null);
 const addressType = ref<'wallet' | 'contract'>('wallet');
 const customTokenAddress = ref('');
 const addingToken = ref(false);
@@ -197,11 +197,11 @@ const loadAddressInfo = async () => {
 
   try {
     // Check if it's a contract
-    const isContractAddress = await isContract(address);
+    const isContractAddress = await chainStore.isContract(address);
     addressType.value = isContractAddress ? 'contract' : 'wallet';
 
     // Load wallet info (balance + tokens if any)
-    walletInfo.value = await getWalletInfo(address);
+    walletInfo.value = await chainStore.getWalletInfo(address);
   } catch (err) {
     console.error('Failed to load address info:', err);
   }
@@ -213,7 +213,7 @@ const addCustomToken = async () => {
   addingToken.value = true;
 
   try {
-    const tokenBalance = await getTokenBalance(
+    const tokenBalance = await chainStore.getTokenBalance(
       customTokenAddress.value as Address,
       walletInfo.value.address
     );
