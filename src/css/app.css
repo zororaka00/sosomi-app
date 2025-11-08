@@ -1,0 +1,128 @@
+/* Global App Styles */
+
+/* Import animation utilities */
+@import './animations.css';
+@import './transitions.css';
+
+/* Reset & Base Styles */
+* {
+  box-sizing: border-box;
+}
+
+html {
+  font-size: 16px;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  font-family: 'Roboto', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+  background-color: #fafafa;
+  color: #111827;
+}
+
+/* Typography */
+h1, h2, h3, h4, h5, h6 {
+  margin: 0;
+  font-weight: 700;
+  line-height: 1.2;
+  letter-spacing: -0.01em;
+}
+
+p {
+  margin: 0;
+  line-height: 1.6;
+}
+
+/* Links */
+a {
+  color: inherit;
+  text-decoration: none;
+  transition: opacity 0.2s ease;
+}
+
+a:hover {
+  opacity: 0.8;
+}
+
+/* Scrollbar Styling (Chrome, Safari, Edge) */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #c1c1c1;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #a8a8a8;
+}
+
+/* Quasar Component Overrides for Light Theme */
+.q-card {
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.q-btn {
+  text-transform: none;
+  letter-spacing: 0.01em;
+}
+
+.q-field--outlined .q-field__control {
+  border-radius: 8px;
+}
+
+.q-list--separator > .q-item-type + .q-item-type {
+  border-top-color: #e5e7eb;
+}
+
+/* Utility Classes */
+.text-mono {
+  font-family: 'Roboto Mono', monospace;
+}
+
+.text-truncate {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.elevation-soft {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+/* Page Container Spacing */
+.q-page {
+  min-height: calc(100vh - 64px);
+}
+
+/* Mobile Adjustments */
+@media (max-width: 600px) {
+  html {
+    font-size: 14px;
+  }
+}
+
+/* Print Styles */
+@media print {
+  body {
+    background: white;
+  }
+  
+  .q-header,
+  .q-drawer,
+  .q-footer {
+    display: none !important;
+  }
+}
+

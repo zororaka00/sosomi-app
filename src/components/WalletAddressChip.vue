@@ -1,0 +1,152 @@
+<template>
+  <div class="wallet-address-chip" :class="{ 'wallet-address-chip--clickable': clickable }">
+    <q-chip
+      :color="chipColor"
+      text-color="white"
+      :icon="icon"
+      :clickable="clickable"
+      @click="handleClick"
+      class="wallet-chip"
+    >
+      <span class="wallet-chip__text" :class="{ 'text-truncate-auto': !truncate }">
+        {{ displayAddress }}
+      </span>
+
+      <q-tooltip v-if="showTooltip" anchor="top middle" self="bottom middle">
+        {{ fullAddress }}
+        <br />
+        <small>Click to copy</small>
+      </q-tooltip>
+    </q-chip>
+
+    <q-btn
+      v-if="copyable"
+      flat
+      dense
+      round
+      size="sm"
+      icon="content_copy"
+      @click="copyAddress"
+      class="wallet-chip__copy"
+    >
+      <q-tooltip>Copy address</q-tooltip>
+    </q-btn>
+  </div>
+</template>
+
+<script setup lang="ts">
+import { computed } from 'vue';
+import { copyToClipboard, Notify } from 'quasar';
+
+const props = withDefaults(
+  defineProps<{
+    address: string;
+    truncate?: boolean;
+    copyable?: boolean;
+    clickable?: boolean;
+    icon?: string;
+    color?: string;
+    showTooltip?: boolean;
+    isTransactionHash?: boolean; // Specifically for transaction hashes
+  }>(),
+  {
+    truncate: true,
+    copyable: true,
+    clickable: false,
+    icon: 'account_balance_wallet',
+    color: 'primary',
+    showTooltip: true,
+    isTransactionHash: false
+  }
+);
+
+const emit = defineEmits<{
+  click: [];
+}>();
+
+const fullAddress = computed(() => props.address);
+
+const displayAddress = computed(() => {
+  const addr = props.address;
+
+  // Transaction hash selalu dipotong
+  if (props.isTransactionHash) {
+    return `${addr.slice(0, 6)}xxxx${addr.slice(-4)}`;
+  }
+
+  // Address (from/to) tidak dipotong
+  return addr;
+});
+
+const chipColor = computed(() => props.color);
+
+const copyAddress = async () => {
+  try {
+    await copyToClipboard(props.address);
+    Notify.create({
+      message: 'Address copied to clipboard',
+      color: 'positive',
+      icon: 'check_circle',
+      position: 'top',
+      timeout: 2000
+    });
+  } catch (err) {
+    Notify.create({
+      message: 'Failed to copy address',
+      color: 'negative',
+      icon: 'error',
+      position: 'top',
+      timeout: 2000
+    });
+  }
+};
+
+const handleClick = () => {
+  if (props.clickable) {
+    emit('click');
+  }
+};
+</script>
+
+<style scoped>
+.wallet-address-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  max-width: 100%;
+}
+
+.wallet-address-chip--clickable .wallet-chip {
+  cursor: pointer;
+}
+
+.wallet-chip {
+  font-family: 'Roboto Mono', monospace;
+  font-size: 13px;
+  font-weight: 500;
+  border-radius: 8px;
+  max-width: 100%;
+}
+
+.wallet-chip__text {
+  letter-spacing: 0.02em;
+  display: inline-block;
+  max-width: 100%;
+}
+
+.text-truncate-auto {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.wallet-chip__copy {
+  opacity: 0.7;
+  transition: opacity 0.2s ease;
+  flex-shrink: 0;
+}
+
+.wallet-chip__copy:hover {
+  opacity: 1;
+}
+</style>

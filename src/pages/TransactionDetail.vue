@@ -1,0 +1,445 @@
+<template>
+  <q-page class="transaction-page">
+    <div class="page-content">
+      <!-- Loading State -->
+      <div v-if="loading" class="loading-container fade-in">
+        <base-card elevated>
+          <q-card-section>
+            <q-skeleton type="text" width="40%" height="30px" class="q-mb-md" />
+            <q-skeleton type="text" width="60%" height="20px" class="q-mb-lg" />
+            <q-separator class="q-mb-lg" />
+            <q-skeleton v-for="i in 6" :key="i" type="text" height="40px" class="q-mb-sm" />
+          </q-card-section>
+        </base-card>
+      </div>
+
+      <!-- Transaction Details -->
+      <div v-else-if="transaction" class="transaction-details fade-in">
+        <!-- Header -->
+        <div class="page-header">
+          <q-btn
+            flat
+            round
+            icon="arrow_back"
+            @click="$router.back()"
+            class="back-btn"
+          />
+          <div>
+            <h1 class="page-title">Transaction Details</h1>
+            <p class="page-subtitle">View transaction information on {{ currentChain?.name }}</p>
+          </div>
+        </div>
+
+        <!-- Status Card -->
+        <base-card class="status-card slide-up-soft" elevated>
+          <q-card-section class="status-content">
+            <q-icon
+              :name="transaction.status === 'success' ? 'check_circle' : 'cancel'"
+              :color="transaction.status === 'success' ? 'positive' : 'negative'"
+              size="48px"
+            />
+            <div class="status-text">
+              <div class="status-label">Status</div>
+              <div :class="['status-value', `status-value--${transaction.status}`]">
+                {{ transaction.status === 'success' ? 'Success' : 'Failed' }}
+              </div>
+            </div>
+            <q-badge
+              v-if="transaction.confirmations > 0"
+              color="primary"
+              :label="`${transaction.confirmations} confirmations`"
+              class="confirmations-badge"
+            />
+          </q-card-section>
+        </base-card>
+
+        <!-- Transaction Info Card -->
+        <base-card class="info-card slide-up-soft stagger-1" bordered>
+          <q-card-section>
+            <div class="info-row">
+              <div class="info-label">Transaction Hash</div>
+              <div class="info-value">
+                <wallet-address-chip
+                  :address="transaction.hash"
+                  :is-transaction-hash="true"
+                  icon="receipt_long"
+                />
+              </div>
+            </div>
+
+            <q-separator class="info-separator" />
+
+            <div class="info-row">
+              <div class="info-label">From</div>
+              <div class="info-value">
+                <wallet-address-chip
+                  :address="transaction.from"
+                  :is-transaction-hash="true"
+                  clickable
+                  @click="navigateToAddress(transaction.from)"
+                />
+              </div>
+            </div>
+
+            <q-separator class="info-separator" />
+
+            <div class="info-row">
+              <div class="info-label">To</div>
+              <div class="info-value">
+                <wallet-address-chip
+                  v-if="transaction.to"
+                  :address="transaction.to"
+                  :is-transaction-hash="true"
+                  clickable
+                  @click="navigateToAddress(transaction.to)"
+                />
+                <span v-else class="text-grey-6">Contract Creation</span>
+              </div>
+            </div>            <q-separator class="info-separator" />
+
+            <div class="info-row">
+              <div class="info-label">Value</div>
+              <div class="info-value value-amount">
+                <q-icon name="currency_exchange" size="20px" color="primary" />
+                <span>{{ transaction.formattedValue }} {{ currentChain?.chain.nativeCurrency.symbol }}</span>
+              </div>
+            </div>
+
+            <q-separator class="info-separator" />
+
+            <div class="info-row">
+              <div class="info-label">Transaction Type</div>
+              <div class="info-value">
+                <q-badge color="primary" :label="txType" />
+              </div>
+            </div>
+
+            <q-separator class="info-separator" />
+
+            <div class="info-row">
+              <div class="info-label">Block Number</div>
+              <div class="info-value mono-text">
+                {{ transaction.blockNumber.toString() }}
+              </div>
+            </div>
+
+            <q-separator class="info-separator" />
+
+            <div class="info-row">
+              <div class="info-label">Timestamp</div>
+              <div class="info-value">
+                <span v-if="transaction.timestamp">
+                  {{ formatTimestamp(transaction.timestamp) }}
+                  <span class="text-grey-6">
+                    ({{ getTimeAgo(transaction.timestamp) }})
+                  </span>
+                </span>
+                <span v-else class="text-grey-6">Pending...</span>
+              </div>
+            </div>
+
+            <q-separator class="info-separator" />
+
+            <div class="info-row">
+              <div class="info-label">Gas Price</div>
+              <div class="info-value">
+                {{ transaction.formattedGasPrice }} Gwei
+              </div>
+            </div>
+
+            <q-separator v-if="transaction.gasUsed" class="info-separator" />
+
+            <div v-if="transaction.gasUsed" class="info-row">
+              <div class="info-label">Gas Used</div>
+              <div class="info-value">
+                {{ transaction.gasUsed.toString() }}
+                <span v-if="transactionCost" class="text-grey-6">
+                  ({{ transactionCost.formattedCost }} {{ currentChain?.chain.nativeCurrency.symbol }})
+                </span>
+              </div>
+            </div>
+
+            <q-separator class="info-separator" />
+
+            <div class="info-row">
+              <div class="info-label">Nonce</div>
+              <div class="info-value mono-text">
+                {{ transaction.nonce }}
+              </div>
+            </div>
+          </q-card-section>
+        </base-card>
+
+        <!-- Input Data Card -->
+        <base-card v-if="transaction.input !== '0x'" class="input-card slide-up-soft stagger-2" bordered>
+          <q-card-section>
+            <h3 class="card-title">Input Data</h3>
+            <div class="input-data">
+              <code>{{ transaction.input }}</code>
+            </div>
+          </q-card-section>
+        </base-card>
+      </div>
+
+      <!-- Error State -->
+      <div v-else-if="error" class="error-container fade-in">
+        <base-card elevated>
+          <q-card-section class="text-center">
+            <q-icon name="error_outline" size="64px" color="negative" class="q-mb-md" />
+            <h3 class="text-h6 q-mb-sm">Transaction Not Found</h3>
+            <p class="text-grey-7 q-mb-lg">{{ error }}</p>
+            <q-btn
+              unelevated
+              rounded
+              color="primary"
+              label="Go Back"
+              icon="arrow_back"
+              @click="$router.back()"
+            />
+          </q-card-section>
+        </base-card>
+      </div>
+    </div>
+  </q-page>
+</template>
+
+<script setup lang="ts">
+import { ref, computed, onMounted } from 'vue';
+import { useRoute, useRouter } from 'vue-router';
+import type { Hash } from 'viem';
+import { useTransaction } from '../composables/useTransaction';
+import { useChain } from '../composables/useChain';
+import BaseCard from '../components/BaseCard.vue';
+import WalletAddressChip from '../components/WalletAddressChip.vue';
+
+const route = useRoute();
+const router = useRouter();
+
+const { getTransaction, getTransactionType, calculateTransactionCost, getTimeAgo, loading, error } = useTransaction();
+const { currentChain } = useChain();
+
+const transaction = ref<Awaited<ReturnType<typeof getTransaction>> | null>(null);
+
+const txType = computed(() => {
+  if (!transaction.value) return 'Unknown';
+  return getTransactionType(transaction.value.input);
+});
+
+const transactionCost = computed(() => {
+  if (!transaction.value?.gasUsed || !transaction.value?.gasPrice) return null;
+  return calculateTransactionCost(transaction.value.gasUsed, transaction.value.gasPrice);
+});
+
+const formatTimestamp = (timestamp: bigint): string => {
+  const date = new Date(Number(timestamp) * 1000);
+  return date.toLocaleString();
+};
+
+const navigateToAddress = (address: string) => {
+  router.push({ name: 'address', params: { address } });
+};
+
+const loadTransaction = async () => {
+  const hash = route.params.hash as Hash;
+  try {
+    transaction.value = await getTransaction(hash);
+  } catch (err) {
+    console.error('Failed to load transaction:', err);
+  }
+};
+
+onMounted(() => {
+  loadTransaction();
+});
+</script>
+
+<style scoped>
+.transaction-page {
+  padding: 32px 24px;
+}
+
+.page-content {
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.page-header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.back-btn {
+  flex-shrink: 0;
+}
+
+.page-title {
+  font-size: 32px;
+  font-weight: 700;
+  color: #111827;
+  margin: 0 0 4px;
+  line-height: 1.2;
+}
+
+.page-subtitle {
+  font-size: 14px;
+  color: #6b7280;
+  margin: 0;
+}
+
+.status-card {
+  margin-bottom: 24px;
+}
+
+.status-content {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  padding: 24px;
+}
+
+.status-text {
+  flex: 1;
+}
+
+.status-label {
+  font-size: 13px;
+  font-weight: 600;
+  color: #6b7280;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 4px;
+}
+
+.status-value {
+  font-size: 24px;
+  font-weight: 700;
+}
+
+.status-value--success {
+  color: #059669;
+}
+
+.status-value--reverted {
+  color: #dc2626;
+}
+
+.confirmations-badge {
+  font-size: 13px;
+  padding: 8px 16px;
+}
+
+.info-card {
+  margin-bottom: 24px;
+}
+
+.info-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 24px;
+  padding: 16px 0;
+}
+
+.info-label {
+  font-size: 14px;
+  font-weight: 600;
+  color: #6b7280;
+  flex-shrink: 0;
+  min-width: 140px;
+}
+
+.info-value {
+  font-size: 14px;
+  color: #111827;
+  text-align: right;
+  flex: 1;
+  min-width: 0;
+  max-width: 100%;
+  overflow: hidden;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.value-amount {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+  font-weight: 600;
+  font-size: 16px;
+}
+
+.mono-text {
+  font-family: 'Roboto Mono', monospace;
+}
+
+.info-separator {
+  margin: 0;
+}
+
+.card-title {
+  font-size: 18px;
+  font-weight: 700;
+  color: #111827;
+  margin: 0 0 16px;
+}
+
+.input-card {
+  margin-bottom: 24px;
+}
+
+.input-data {
+  background-color: #f9fafb;
+  border-radius: 8px;
+  padding: 16px;
+  overflow-x: auto;
+}
+
+.input-data code {
+  font-family: 'Roboto Mono', monospace;
+  font-size: 12px;
+  color: #374151;
+  word-break: break-all;
+}
+
+.loading-container,
+.error-container {
+  max-width: 700px;
+  margin: 40px auto;
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+  .transaction-page {
+    padding: 24px 16px;
+  }
+
+  .page-title {
+    font-size: 24px;
+  }
+
+  .info-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .info-label {
+    min-width: auto;
+  }
+
+  .info-value {
+    text-align: left;
+  }
+
+  .value-amount {
+    justify-content: flex-start;
+  }
+
+  .status-content {
+    flex-wrap: wrap;
+  }
+}
+</style>
