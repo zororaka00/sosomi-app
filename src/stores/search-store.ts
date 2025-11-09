@@ -17,7 +17,11 @@ export const useSearchStore = defineStore('search', () => {
     try {
       const stored = localStorage.getItem('recentSearches');
       if (stored) {
-        recentSearches.value = JSON.parse(stored);
+        const parsed = JSON.parse(stored);
+        // Sort by timestamp descending (newest first) and keep only 20
+        recentSearches.value = parsed
+          .sort((a: RecentSearch, b: RecentSearch) => b.timestamp - a.timestamp)
+          .slice(0, 20);
       }
     } catch (err) {
       console.error('Failed to load recent searches:', err);
@@ -28,11 +32,11 @@ export const useSearchStore = defineStore('search', () => {
     // Remove duplicate if exists
     const filtered = recentSearches.value.filter(s => s.query !== query);
 
-    // Add to beginning
+    // Add to beginning (newest first)
     recentSearches.value = [
       { query, type, timestamp: Date.now() },
       ...filtered
-    ].slice(0, 5); // Keep only last 5
+    ].slice(0, 20); // Keep only last 20
 
     // Persist to localStorage
     saveSearchHistory();

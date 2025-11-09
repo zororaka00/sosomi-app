@@ -100,7 +100,7 @@ export const SUPPORTED_CHAINS: Record<string, ChainConfig> = {
   },
   bnb: {
     chain: bsc,
-    rpcUrl: 'https://bsc-dataseed.binance.org',
+    rpcUrl: 'https://bsc-dataseed.bnbchain.org',
     name: 'BNB Chain',
     icon: 'currency_bitcoin',
     iconUrl: '/src/assets/bnb.svg'
