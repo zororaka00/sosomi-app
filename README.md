@@ -1,4 +1,4 @@
-# Sosomi - Onchain Scanner# Sosomi (onchain-scanner-app)
+# Sosomi - Onchain Scanner# Sosomi (sosomi)
 
 
 

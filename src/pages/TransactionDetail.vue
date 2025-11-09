@@ -187,7 +187,7 @@
           <q-card-section class="text-center">
             <q-icon name="error_outline" size="64px" color="negative" class="q-mb-md" />
             <h3 class="text-h6 q-mb-sm">Transaction Not Found</h3>
-            <p class="text-grey-7 q-mb-lg">{{ error }}</p>
+            <!-- <p class="text-grey-7 q-mb-lg">{{ error }}</p> -->
             <q-btn
               unelevated
               rounded

@@ -1,5 +1,6 @@
 import { defineStore, acceptHMRUpdate } from 'pinia';
 import { ref } from 'vue';
+import { LocalStorage } from 'quasar';
 
 export interface RecentSearch {
   query: string;
@@ -15,9 +16,10 @@ export const useSearchStore = defineStore('search', () => {
   // Actions
   function loadSearchHistory() {
     try {
-      const stored = localStorage.getItem('recentSearches');
+      const stored = LocalStorage.getItem('recentSearches');
       if (stored) {
-        const parsed = JSON.parse(stored);
+        // Parse from string to JSON
+        const parsed = JSON.parse(stored as string);
         // Sort by timestamp descending (newest first) and keep only 20
         recentSearches.value = parsed
           .sort((a: RecentSearch, b: RecentSearch) => b.timestamp - a.timestamp)
@@ -44,7 +46,8 @@ export const useSearchStore = defineStore('search', () => {
 
   function saveSearchHistory() {
     try {
-      localStorage.setItem('recentSearches', JSON.stringify(recentSearches.value));
+      // Convert to string before saving
+      LocalStorage.set('recentSearches', JSON.stringify(recentSearches.value));
     } catch (err) {
       console.error('Failed to save search history:', err);
     }
@@ -52,7 +55,7 @@ export const useSearchStore = defineStore('search', () => {
 
   function clearSearchHistory() {
     recentSearches.value = [];
-    localStorage.removeItem('recentSearches');
+    LocalStorage.remove('recentSearches');
   }
 
   function setCurrentQuery(query: string) {
