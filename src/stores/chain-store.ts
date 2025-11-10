@@ -1,5 +1,6 @@
 import { defineStore, acceptHMRUpdate } from 'pinia';
-import { ref, computed } from 'vue';
+import { ref, computed, watch } from 'vue';
+import { LocalStorage } from 'quasar';
 import {
   createPublicClient,
   http,
@@ -56,6 +57,12 @@ export interface TokenBalance {
   decimals: number;
   balance: bigint;
   formattedBalance: string;
+}
+
+export interface SavedToken {
+  address: Address;
+  symbol: string;
+  chainId: string;
 }
 
 export interface WalletInfo {
@@ -144,11 +151,70 @@ export const SUPPORTED_CHAINS: Record<string, ChainConfig> = {
 };
 
 export const useChainStore = defineStore('chain', () => {
+  // Load saved chain from LocalStorage, default to 'ethereum'
+  const savedChainId = LocalStorage.getItem('currentChainId') as string | null;
+
   // State
-  const currentChainId = ref<string>('ethereum');
+  const currentChainId = ref<string>(savedChainId && SUPPORTED_CHAINS[savedChainId] ? savedChainId : 'ethereum');
   const clients = new Map<string, PublicClient>();
   const loading = ref(false);
   const error = ref<string | null>(null);
+  const savedTokens = ref<SavedToken[]>([]);
+
+  // Watch currentChainId and save to LocalStorage
+  watch(currentChainId, (newChainId) => {
+    LocalStorage.set('currentChainId', newChainId);
+  });
+
+  // Load saved tokens from LocalStorage
+  function loadSavedTokens() {
+    try {
+      const stored = LocalStorage.getItem('savedTokens');
+      if (stored) {
+        savedTokens.value = JSON.parse(stored as string);
+      }
+    } catch (err) {
+      console.error('Failed to load saved tokens:', err);
+    }
+  }
+
+  // Save tokens to LocalStorage
+  function saveSavedTokens() {
+    try {
+      LocalStorage.set('savedTokens', JSON.stringify(savedTokens.value));
+    } catch (err) {
+      console.error('Failed to save tokens:', err);
+    }
+  }
+
+  // Add token to saved list
+  function addSavedToken(address: Address, symbol: string, chainId: string) {
+    // Check if token already exists for this chain
+    const exists = savedTokens.value.some(
+      t => t.address.toLowerCase() === address.toLowerCase() && t.chainId === chainId
+    );
+
+    if (!exists) {
+      savedTokens.value.push({ address, symbol, chainId });
+      saveSavedTokens();
+    }
+  }
+
+  // Get saved tokens for current chain
+  function getSavedTokensForChain(chainId: string): SavedToken[] {
+    return savedTokens.value.filter(t => t.chainId === chainId);
+  }
+
+  // Remove saved token
+  function removeSavedToken(address: Address, chainId: string) {
+    savedTokens.value = savedTokens.value.filter(
+      t => !(t.address.toLowerCase() === address.toLowerCase() && t.chainId === chainId)
+    );
+    saveSavedTokens();
+  }
+
+  // Initialize
+  loadSavedTokens();
 
   // Getters
   const currentChain = computed(() => SUPPORTED_CHAINS[currentChainId.value]);
@@ -161,6 +227,10 @@ export const useChainStore = defineStore('chain', () => {
   );
 
   const client = computed(() => getClient());
+
+  const currentChainSavedTokens = computed(() =>
+    getSavedTokensForChain(currentChainId.value)
+  );
 
   // Client Actions
   function getClient(chainId: string = currentChainId.value): PublicClient {
@@ -462,11 +532,13 @@ export const useChainStore = defineStore('chain', () => {
     currentChainId,
     loading,
     error,
+    savedTokens,
 
     // Getters
     currentChain,
     chains,
     client,
+    currentChainSavedTokens,
 
     // Client Actions
     getClient,
@@ -485,6 +557,11 @@ export const useChainStore = defineStore('chain', () => {
     getWalletInfo,
     getRecentTokenTransfers,
     isContract,
+
+    // Token Management
+    addSavedToken,
+    getSavedTokensForChain,
+    removeSavedToken,
 
     // Constants
     SUPPORTED_CHAINS

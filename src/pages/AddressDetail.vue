@@ -114,6 +114,27 @@
               Enter an ERC20 token contract address to check its balance for this address
             </p>
 
+            <!-- Saved Tokens List -->
+            <div v-if="chainStore.currentChainSavedTokens.length > 0" class="saved-tokens-section">
+              <div class="saved-tokens-title">Previously Added Tokens:</div>
+              <div class="saved-tokens-chips">
+                <q-chip
+                  v-for="token in chainStore.currentChainSavedTokens"
+                  :key="token.address"
+                  clickable
+                  outline
+                  color="primary"
+                  :icon="'token'"
+                  @click="customTokenAddress = token.address"
+                  removable
+                  @remove="removeSavedToken(token.address)"
+                  class="saved-token-chip"
+                >
+                  {{ token.symbol }}
+                </q-chip>
+              </div>
+            </div>
+
             <div class="add-token-form">
               <q-input
                 v-model="customTokenAddress"
@@ -221,6 +242,13 @@ const addCustomToken = async () => {
     // Add to tokens list
     walletInfo.value.tokens.push(tokenBalance);
 
+    // Save token to store with chainId
+    chainStore.addSavedToken(
+      customTokenAddress.value as Address,
+      tokenBalance.symbol,
+      chainStore.currentChainId
+    );
+
     Notify.create({
       message: `Added ${tokenBalance.symbol}`,
       color: 'positive',
@@ -241,6 +269,17 @@ const addCustomToken = async () => {
   } finally {
     addingToken.value = false;
   }
+};
+
+const removeSavedToken = (address: Address) => {
+  chainStore.removeSavedToken(address, chainStore.currentChainId);
+  Notify.create({
+    message: 'Token removed from saved list',
+    color: 'info',
+    icon: 'delete',
+    position: 'top',
+    timeout: 2000
+  });
 };
 
 onMounted(() => {
@@ -385,6 +424,35 @@ onMounted(() => {
 
 .add-token-btn {
   width: 100%;
+}
+
+.saved-tokens-section {
+  margin-bottom: 20px;
+  padding: 16px;
+  background-color: #f9fafb;
+  border-radius: 8px;
+}
+
+.saved-tokens-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: #6b7280;
+  margin-bottom: 12px;
+}
+
+.saved-tokens-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.saved-token-chip {
+  cursor: pointer;
+  transition: transform 0.2s ease;
+}
+
+.saved-token-chip:hover {
+  transform: translateY(-2px);
 }
 
 .loading-container,
