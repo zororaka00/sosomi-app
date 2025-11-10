@@ -93,15 +93,16 @@
                 v-for="(search, index) in recentSearches"
                 :key="index"
                 clickable
-                @click="searchQuery = search.query"
+                @click="handleRecentClick(search.query)"
                 class="recent-item"
+                v-ripple
               >
                 <q-item-section avatar>
                   <q-icon :name="getSearchTypeIcon(search.type)" color="primary" />
                 </q-item-section>
 
                 <q-item-section>
-                  <q-item-label class="recent-query">{{ truncate(search.query, 30) }}</q-item-label>
+                  <q-item-label class="recent-query">{{ truncateAddress(search.query) }}</q-item-label>
                   <q-item-label caption>{{ search.type }}</q-item-label>
                 </q-item-section>
 
@@ -207,6 +208,11 @@ const addToRecentSearches = (query: string, type: 'Transaction' | 'Wallet' | 'Co
   searchStore.addSearch(query, type);
 };
 
+const handleRecentClick = (query: string) => {
+  searchQuery.value = query;
+  handleSearch();
+};
+
 const clearRecentSearches = () => {
   searchStore.clearSearchHistory();
   Notify.create({
@@ -227,9 +233,10 @@ const getSearchTypeIcon = (type: string): string => {
   return icons[type] || 'search';
 };
 
-const truncate = (str: string, length: number): string => {
-  if (str.length <= length) return str;
-  return `${str.slice(0, length - 3)}...`;
+const truncateAddress = (str: string): string => {
+  if (!str || str.length <= 12) return str;
+  // Format: 0x1234xxxx5678 (first 6 chars + xxxx + last 4 chars)
+  return `${str.slice(0, 6)}xxxx${str.slice(-4)}`;
 };
 
 </script>
@@ -354,6 +361,13 @@ const truncate = (str: string, length: number): string => {
 .recent-item {
   border-radius: 8px;
   transition: background-color 0.2s ease;
+  min-height: 56px;
+  cursor: pointer;
+  -webkit-tap-highlight-color: rgba(0, 0, 0, 0.1);
+}
+
+.recent-item:active {
+  background-color: #e5e7eb;
 }
 
 .recent-item:hover {

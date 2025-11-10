@@ -14,6 +14,14 @@ import {
 } from 'viem';
 import { mainnet, polygon, arbitrum, optimism, base, bsc } from 'viem/chains';
 
+// Import SVG assets
+import ethereumIcon from '../assets/ethereum.svg';
+import bnbIcon from '../assets/bnb.svg';
+import baseIcon from '../assets/base.svg';
+import arbitrumIcon from '../assets/arbitrum.svg';
+import optimismIcon from '../assets/optimism.svg';
+import polygonIcon from '../assets/polygon.svg';
+
 export interface ChainConfig {
   chain: Chain;
   rpcUrl: string;
@@ -96,42 +104,42 @@ export const SUPPORTED_CHAINS: Record<string, ChainConfig> = {
     rpcUrl: 'https://eth.llamarpc.com',
     name: 'Ethereum',
     icon: 'token',
-    iconUrl: '/src/assets/ethereum.svg'
+    iconUrl: ethereumIcon
   },
   bnb: {
     chain: bsc,
     rpcUrl: 'https://bsc-dataseed.bnbchain.org',
     name: 'BNB Chain',
     icon: 'currency_bitcoin',
-    iconUrl: '/src/assets/bnb.svg'
+    iconUrl: bnbIcon
   },
   base: {
     chain: base,
     rpcUrl: 'https://mainnet.base.org',
     name: 'Base',
     icon: 'foundation',
-    iconUrl: '/src/assets/base.svg'
+    iconUrl: baseIcon
   },
   arbitrum: {
     chain: arbitrum,
     rpcUrl: 'https://arb1.arbitrum.io/rpc',
     name: 'Arbitrum',
     icon: 'trending_up',
-    iconUrl: '/src/assets/arbitrum.svg'
+    iconUrl: arbitrumIcon
   },
   optimism: {
     chain: optimism,
     rpcUrl: 'https://mainnet.optimism.io',
     name: 'Optimism',
     icon: 'lightbulb',
-    iconUrl: '/src/assets/optimism.svg'
+    iconUrl: optimismIcon
   },
   polygon: {
     chain: polygon,
     rpcUrl: 'https://polygon-rpc.com',
     name: 'Polygon',
     icon: 'polyline',
-    iconUrl: '/src/assets/polygon.svg'
+    iconUrl: polygonIcon
   }
 };
 
