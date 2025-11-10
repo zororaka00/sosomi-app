@@ -25,7 +25,7 @@
             class="back-btn"
           />
           <div>
-            <h1 class="page-title">Transaction Details</h1>
+            <h1 class="page-title">Transaction Detail</h1>
             <p class="page-subtitle">View transaction information on {{ currentChain?.name }}</p>
           </div>
         </div>
@@ -60,6 +60,7 @@
               <div class="info-label">Transaction Hash</div>
               <div class="info-value">
                 <wallet-address-chip
+                  color="primary"
                   :address="transaction.hash"
                   :is-transaction-hash="true"
                   icon="mdi-receipt-text"
@@ -73,6 +74,7 @@
               <div class="info-label">From</div>
               <div class="info-value">
                 <wallet-address-chip
+                  color="primary"
                   :address="transaction.from"
                   :is-transaction-hash="true"
                   clickable
@@ -88,6 +90,7 @@
               <div class="info-value">
                 <wallet-address-chip
                   v-if="transaction.to"
+                  color="primary"
                   :address="transaction.to"
                   :is-transaction-hash="true"
                   clickable
@@ -187,7 +190,7 @@
           <q-card-section class="text-center">
             <q-icon name="mdi-alert-circle" size="64px" color="negative" class="q-mb-md" />
             <h3 class="text-h6 q-mb-sm">Transaction Not Found</h3>
-            <p class="text-grey-7 q-mb-lg">{{ error }}</p>
+            <!-- <p class="text-grey-7 q-mb-lg">{{ error }}</p> -->
             <q-btn
               unelevated
               rounded
@@ -209,6 +212,7 @@ import { useRoute, useRouter } from 'vue-router';
 import { storeToRefs } from 'pinia';
 import type { Hash } from 'viem';
 import { useChainStore } from '../stores/chain-store';
+import { useSearchStore } from '../stores/search-store';
 import BaseCard from '../components/BaseCard.vue';
 import WalletAddressChip from '../components/WalletAddressChip.vue';
 
@@ -216,6 +220,7 @@ const route = useRoute();
 const router = useRouter();
 
 const chainStore = useChainStore();
+const searchStore = useSearchStore();
 const { currentChain, loading, error } = storeToRefs(chainStore);
 
 const transaction = ref<Awaited<ReturnType<typeof chainStore.getTransaction>> | null>(null);
@@ -243,6 +248,9 @@ const loadTransaction = async () => {
   const hash = route.params.hash as Hash;
   try {
     transaction.value = await chainStore.getTransaction(hash);
+
+    // Add to recent searches
+    searchStore.addSearch(hash, 'Transaction', chainStore.currentChainId);
   } catch (err) {
     console.error('Failed to load transaction:', err);
   }

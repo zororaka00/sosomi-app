@@ -3,9 +3,9 @@
     <div class="search-container fade-in">
       <!-- Hero Section -->
       <div class="hero-section">
-        <h1 class="hero-title">Explore the Blockchain</h1>
+        <h1 class="hero-title">Explore Blockchain</h1>
         <p class="hero-subtitle">
-          Search for transaction, wallet, or contract across multiple chain
+          Search for transaction hash or address across multiple chain
         </p>
       </div>
 
@@ -74,7 +74,7 @@
                 v-for="(search, index) in recentSearches"
                 :key="index"
                 clickable
-                @click="handleRecentClick(search.query)"
+                @click="handleRecentClick(search)"
                 class="recent-item"
                 v-ripple
               >
@@ -84,7 +84,9 @@
 
                 <q-item-section>
                   <q-item-label class="recent-query">{{ truncateAddress(search.query) }}</q-item-label>
-                  <q-item-label caption>{{ search.type }}</q-item-label>
+                  <q-item-label caption>
+                    {{ search.type }} · {{ getChainName(search.chainId || 'ethereum') }}
+                  </q-item-label>
                 </q-item-section>
 
                 <q-item-section side>
@@ -107,15 +109,23 @@ import { Notify } from 'quasar';
 import { storeToRefs } from 'pinia';
 import BaseCard from '../components/BaseCard.vue';
 import { useSearchStore } from '../stores/search-store';
+import { useChainStore } from '../stores/chain-store';
 
 const router = useRouter();
 const searchStore = useSearchStore();
+const chainStore = useChainStore();
 
 const searchQuery = ref('');
 const searching = ref(false);
 
 // Use storeToRefs for reactive access
 const { recentSearches } = storeToRefs(searchStore);
+const { currentChainId } = storeToRefs(chainStore);
+
+const getChainName = (chainId: string): string => {
+  const chains = chainStore.SUPPORTED_CHAINS;
+  return chains[chainId]?.name || chainId;
+};
 
 const handleSearch = async () => {
   const query = searchQuery.value.trim();
@@ -137,12 +147,9 @@ const handleSearch = async () => {
     // Determine search type
     if (isHash(query)) {
       // It's a transaction hash
-      addToRecentSearches(query, 'Transaction');
       await router.push({ name: 'transaction', params: { hash: query } });
     } else if (isAddress(query)) {
-      // It's an address - need to determine if wallet or contract
-      // We'll check this in the detail page
-      addToRecentSearches(query, 'Wallet');
+      // It's an address - will determine if wallet or contract in detail page
       await router.push({ name: 'address', params: { address: query } });
     } else {
       Notify.create({
@@ -167,14 +174,24 @@ const handleSearch = async () => {
   }
 };
 
-const addToRecentSearches = (query: string, type: 'Transaction' | 'Wallet' | 'Contract') => {
-  searchStore.addSearch(query, type);
-};
+const handleRecentClick = async (search: any) => {
+  // Switch to the chain if different (fallback to ethereum if chainId not set)
+  const searchChainId = search.chainId || 'ethereum';
+  if (searchChainId !== currentChainId.value) {
+    currentChainId.value = searchChainId;
+    Notify.create({
+      message: `Switched to ${getChainName(searchChainId)}`,
+      color: 'info',
+      icon: 'mdi-check-circle',
+      position: 'top',
+      timeout: 2000
+    });
+  }
 
-const handleRecentClick = (query: string) => {
-  searchQuery.value = query;
+  searchQuery.value = search.query;
   handleSearch();
 };
+
 
 const clearRecentSearches = () => {
   searchStore.clearSearchHistory();
@@ -190,8 +207,7 @@ const clearRecentSearches = () => {
 const getSearchTypeIcon = (type: string): string => {
   const icons: Record<string, string> = {
     Transaction: 'mdi-receipt-text',
-    Wallet: 'mdi-wallet',
-    Contract: 'mdi-file-document'
+    Address: 'mdi-wallet'
   };
   return icons[type] || 'mdi-magnify';
 };

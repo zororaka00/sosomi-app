@@ -520,8 +520,8 @@ export const useChainStore = defineStore('chain', () => {
 
   async function isContract(address: Address): Promise<boolean> {
     try {
-      const code = await client.value.getBytecode({ address });
-      return !!code && code !== '0x';
+      const bytecode = await client.value.getCode({ address });
+      return !!bytecode && bytecode !== '0x';
     } catch {
       return false;
     }

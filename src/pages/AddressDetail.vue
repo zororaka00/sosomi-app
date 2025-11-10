@@ -25,9 +25,7 @@
             class="back-btn"
           />
           <div>
-            <h1 class="page-title">
-              {{ addressType === 'contract' ? 'Contract' : 'Wallet' }} Details
-            </h1>
+            <h1 class="page-title">Address Detail</h1>
             <p class="page-subtitle">{{ currentChain?.name }}</p>
           </div>
         </div>
@@ -37,15 +35,13 @@
           <q-card-section>
             <div class="address-header">
               <q-icon
-                :name="addressType === 'contract' ? 'mdi-file-code' : 'mdi-wallet'"
+                name="mdi-wallet"
                 size="48px"
                 color="primary"
               />
               <div class="address-info">
-                <div class="address-label">
-                  {{ addressType === 'contract' ? 'Contract Address' : 'Wallet Address' }}
-                </div>
-                <wallet-address-chip :address="walletInfo.address" :is-transaction-hash="true" />
+                <div class="address-label">Address</div>
+                <wallet-address-chip color="primary" :address="walletInfo.address" :is-transaction-hash="true" />
               </div>
             </div>
           </q-card-section>
@@ -85,24 +81,6 @@
                 clickable
               />
             </q-list>
-          </q-card-section>
-        </base-card>
-
-        <!-- Contract Info (if contract) -->
-        <base-card
-          v-if="addressType === 'contract'"
-          class="contract-card slide-up-soft stagger-3"
-          bordered
-        >
-          <q-card-section>
-            <h3 class="card-title">Contract Information</h3>
-            <div class="contract-info">
-              <q-icon name="mdi-information" size="48px" color="info" />
-              <p class="contract-text">
-                This is a smart contract. Contract source code verification and
-                detailed interaction features are coming soon.
-              </p>
-            </div>
           </q-card-section>
         </base-card>
 
@@ -194,6 +172,7 @@ import { storeToRefs } from 'pinia';
 import { type Address, isAddress as viemIsAddress } from 'viem';
 import { Notify } from 'quasar';
 import { useChainStore } from '../stores/chain-store';
+import { useSearchStore } from '../stores/search-store';
 import BaseCard from '../components/BaseCard.vue';
 import WalletAddressChip from '../components/WalletAddressChip.vue';
 import TokenRow from '../components/TokenRow.vue';
@@ -202,10 +181,10 @@ const route = useRoute();
 const router = useRouter();
 
 const chainStore = useChainStore();
+const searchStore = useSearchStore();
 const { currentChain, loading, error } = storeToRefs(chainStore);
 
 const walletInfo = ref<Awaited<ReturnType<typeof chainStore.getWalletInfo>> | null>(null);
-const addressType = ref<'wallet' | 'contract'>('wallet');
 const customTokenAddress = ref('');
 const addingToken = ref(false);
 
@@ -217,9 +196,8 @@ const loadAddressInfo = async () => {
   const address = route.params.address as Address;
 
   try {
-    // Check if it's a contract
-    const isContractAddress = await chainStore.isContract(address);
-    addressType.value = isContractAddress ? 'contract' : 'wallet';
+    // Add to recent searches
+    searchStore.addSearch(address, 'Address', chainStore.currentChainId);
 
     // Load wallet info (balance + tokens if any)
     walletInfo.value = await chainStore.getWalletInfo(address);
@@ -384,26 +362,6 @@ onMounted(() => {
 
 .tokens-card {
   margin-bottom: 24px;
-}
-
-.contract-card {
-  margin-bottom: 24px;
-}
-
-.contract-info {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 16px;
-  padding: 24px;
-  text-align: center;
-}
-
-.contract-text {
-  font-size: 14px;
-  color: #6b7280;
-  margin: 0;
-  line-height: 1.6;
 }
 
 .add-token-card {

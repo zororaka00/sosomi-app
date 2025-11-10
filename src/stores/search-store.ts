@@ -4,8 +4,9 @@ import { LocalStorage } from 'quasar';
 
 export interface RecentSearch {
   query: string;
-  type: 'Transaction' | 'Wallet' | 'Contract';
+  type: 'Transaction' | 'Address';
   timestamp: number;
+  chainId: string;
 }
 
 export const useSearchStore = defineStore('search', () => {
@@ -30,13 +31,13 @@ export const useSearchStore = defineStore('search', () => {
     }
   }
 
-  function addSearch(query: string, type: RecentSearch['type']) {
+  function addSearch(query: string, type: RecentSearch['type'], chainId: string) {
     // Remove duplicate if exists
     const filtered = recentSearches.value.filter(s => s.query !== query);
 
     // Add to beginning (newest first)
     recentSearches.value = [
-      { query, type, timestamp: Date.now() },
+      { query, type, timestamp: Date.now(), chainId },
       ...filtered
     ].slice(0, 20); // Keep only last 20
 
