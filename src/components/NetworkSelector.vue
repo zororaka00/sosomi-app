@@ -40,7 +40,7 @@
             </q-item-section>
 
             <q-item-section side v-if="chain.id === currentChainId">
-              <q-icon name="check_circle" color="primary" size="20px" />
+              <q-icon name="mdi-check-circle" color="primary" size="20px" />
             </q-item-section>
           </q-item>
         </q-list>
@@ -81,7 +81,7 @@ const handleChainSwitch = (chainId: string) => {
     Notify.create({
       message: `Switched to ${chainName}`,
       color: 'positive',
-      icon: 'check_circle',
+      icon: 'mdi-check-circle',
       position: 'top',
       timeout: 2000
     });
@@ -90,7 +90,7 @@ const handleChainSwitch = (chainId: string) => {
     Notify.create({
       message: 'Failed to switch network',
       color: 'negative',
-      icon: 'error',
+      icon: 'mdi-alert-circle',
       position: 'top',
       timeout: 2000
     });

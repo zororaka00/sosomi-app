@@ -20,7 +20,7 @@
           <q-btn
             flat
             round
-            icon="arrow_back"
+            icon="mdi-arrow-left"
             @click="$router.back()"
             class="back-btn"
           />
@@ -37,7 +37,7 @@
           <q-card-section>
             <div class="address-header">
               <q-icon
-                :name="addressType === 'contract' ? 'description' : 'account_balance_wallet'"
+                :name="addressType === 'contract' ? 'mdi-file-code' : 'mdi-wallet'"
                 size="48px"
                 color="primary"
               />
@@ -56,7 +56,7 @@
           <q-card-section>
             <div class="balance-header">
               <h3 class="card-title">Native Balance</h3>
-              <q-icon name="account_balance" size="24px" color="primary" />
+              <q-icon name="mdi-cash" size="24px" color="primary" />
             </div>
             <div class="balance-amount">
               <span class="balance-value">{{ walletInfo.formattedBalance }}</span>
@@ -97,7 +97,7 @@
           <q-card-section>
             <h3 class="card-title">Contract Information</h3>
             <div class="contract-info">
-              <q-icon name="info" size="48px" color="info" />
+              <q-icon name="mdi-information" size="48px" color="info" />
               <p class="contract-text">
                 This is a smart contract. Contract source code verification and
                 detailed interaction features are coming soon.
@@ -124,7 +124,7 @@
                   clickable
                   outline
                   color="primary"
-                  :icon="'token'"
+                  :icon="'mdi-coin'"
                   @click="customTokenAddress = token.address"
                   removable
                   @remove="removeSavedToken(token.address)"
@@ -144,7 +144,7 @@
                 :rules="[val => !val || isValidAddress(val) || 'Invalid address']"
               >
                 <template v-slot:prepend>
-                  <q-icon name="token" />
+                  <q-icon name="mdi-coin" />
                 </template>
               </q-input>
 
@@ -153,7 +153,7 @@
                 rounded
                 color="primary"
                 label="Add Token"
-                icon-right="add"
+                icon-right="mdi-plus"
                 no-caps
                 :loading="addingToken"
                 :disable="!customTokenAddress || !isValidAddress(customTokenAddress)"
@@ -169,7 +169,7 @@
       <div v-else-if="error" class="error-container fade-in">
         <base-card elevated>
           <q-card-section class="text-center">
-            <q-icon name="error_outline" size="64px" color="negative" class="q-mb-md" />
+            <q-icon name="mdi-alert-circle" size="64px" color="negative" class="q-mb-md" />
             <h3 class="text-h6 q-mb-sm">Address Not Found</h3>
             <p class="text-grey-7 q-mb-lg">{{ error }}</p>
             <q-btn
@@ -177,7 +177,7 @@
               rounded
               color="primary"
               label="Go Back"
-              icon="arrow_back"
+              icon="mdi-arrow-left"
               @click="$router.back()"
             />
           </q-card-section>
@@ -252,7 +252,7 @@ const addCustomToken = async () => {
     Notify.create({
       message: `Added ${tokenBalance.symbol}`,
       color: 'positive',
-      icon: 'check_circle',
+      icon: 'mdi-check-circle',
       position: 'top',
       timeout: 2000
     });
@@ -262,7 +262,7 @@ const addCustomToken = async () => {
     Notify.create({
       message: 'Failed to add token. Please check the address.',
       color: 'negative',
-      icon: 'error',
+      icon: 'mdi-alert-circle',
       position: 'top',
       timeout: 3000
     });
@@ -276,7 +276,7 @@ const removeSavedToken = (address: Address) => {
   Notify.create({
     message: 'Token removed from saved list',
     color: 'info',
-    icon: 'delete',
+    icon: 'mdi-delete',
     position: 'top',
     timeout: 2000
   });

@@ -20,7 +20,7 @@
           <q-btn
             flat
             round
-            icon="arrow_back"
+            icon="mdi-arrow-left"
             @click="$router.back()"
             class="back-btn"
           />
@@ -34,7 +34,7 @@
         <base-card class="status-card slide-up-soft" elevated>
           <q-card-section class="status-content">
             <q-icon
-              :name="transaction.status === 'success' ? 'check_circle' : 'cancel'"
+              :name="transaction.status === 'success' ? 'mdi-check-circle' : 'mdi-close-circle'"
               :color="transaction.status === 'success' ? 'positive' : 'negative'"
               size="48px"
             />
@@ -62,7 +62,7 @@
                 <wallet-address-chip
                   :address="transaction.hash"
                   :is-transaction-hash="true"
-                  icon="receipt_long"
+                  icon="mdi-receipt-text"
                 />
               </div>
             </div>
@@ -185,15 +185,15 @@
       <div v-else-if="error" class="error-container fade-in">
         <base-card elevated>
           <q-card-section class="text-center">
-            <q-icon name="error_outline" size="64px" color="negative" class="q-mb-md" />
+            <q-icon name="mdi-alert-circle" size="64px" color="negative" class="q-mb-md" />
             <h3 class="text-h6 q-mb-sm">Transaction Not Found</h3>
-            <!-- <p class="text-grey-7 q-mb-lg">{{ error }}</p> -->
+            <p class="text-grey-7 q-mb-lg">{{ error }}</p>
             <q-btn
               unelevated
               rounded
               color="primary"
               label="Go Back"
-              icon="arrow_back"
+              icon="mdi-arrow-left"
               @click="$router.back()"
             />
           </q-card-section>
