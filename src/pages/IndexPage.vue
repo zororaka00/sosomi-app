@@ -3,7 +3,7 @@
     <div class="search-container fade-in">
       <!-- Hero Section -->
       <div class="hero-section">
-        <h1 class="hero-title">Explore Blockchain</h1>
+        <h1 class="hero-title">Blockchain Explorer</h1>
         <p class="hero-subtitle">
           Search for transaction hash or address across multiple chain
         </p>
