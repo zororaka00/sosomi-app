@@ -158,6 +158,19 @@ export const useChainStore = defineStore('chain', () => {
   const currentChainId = ref<string>(savedChainId && SUPPORTED_CHAINS[savedChainId] ? savedChainId : 'ethereum');
   const clients = new Map<string, PublicClient>();
   const loading = ref(false);
+
+  // Helper function to format numbers with max 8 decimals
+  const formatWithMaxDecimals = (value: string, maxDecimals: number = 8): string => {
+    const num = parseFloat(value);
+    if (isNaN(num)) return value;
+
+    // If the number has more decimals than maxDecimals, truncate
+    const decimalIndex = value.indexOf('.');
+    if (decimalIndex !== -1 && value.length - decimalIndex - 1 > maxDecimals) {
+      return num.toFixed(maxDecimals);
+    }
+    return value;
+  };
   const error = ref<string | null>(null);
   const savedTokens = ref<SavedToken[]>([]);
 
@@ -297,10 +310,10 @@ export const useChainStore = defineStore('chain', () => {
         from: tx.from,
         to: tx.to,
         value: tx.value,
-        formattedValue: formatEther(tx.value),
+        formattedValue: formatWithMaxDecimals(formatEther(tx.value)),
         gasPrice: tx.gasPrice || null,
         gasUsed: receipt?.gasUsed || null,
-        formattedGasPrice: tx.gasPrice ? formatGwei(tx.gasPrice) : '0',
+        formattedGasPrice: formatWithMaxDecimals(tx.gasPrice ? formatGwei(tx.gasPrice) : '0'),
         blockNumber: tx.blockNumber || BigInt(0),
         blockHash: tx.blockHash || ('0x' as Hash),
         timestamp,
@@ -364,7 +377,7 @@ export const useChainStore = defineStore('chain', () => {
     const cost = gasUsed * gasPrice;
     return {
       cost,
-      formattedCost: formatEther(cost)
+      formattedCost: formatWithMaxDecimals(formatEther(cost))
     };
   }
 
@@ -432,7 +445,7 @@ export const useChainStore = defineStore('chain', () => {
         name: name as string,
         decimals: decimals as number,
         balance: balance as bigint,
-        formattedBalance: formatUnits(balance as bigint, decimals as number)
+        formattedBalance: formatWithMaxDecimals(formatUnits(balance as bigint, decimals as number))
       };
     } catch (err) {
       console.error('Error fetching token balance:', err);
@@ -468,7 +481,7 @@ export const useChainStore = defineStore('chain', () => {
       return {
         address,
         balance,
-        formattedBalance: formatEther(balance),
+        formattedBalance: formatWithMaxDecimals(formatEther(balance)),
         tokens
       };
     } catch (err) {

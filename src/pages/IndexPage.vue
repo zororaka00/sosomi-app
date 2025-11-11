@@ -15,7 +15,7 @@
           <q-input
             v-model="searchQuery"
             outlined
-            placeholder="Enter tx hash, wallet address, or contract address"
+            placeholder="Enter tx hash or address"
             class="search-input"
             @keyup.enter="handleSearch"
           >
