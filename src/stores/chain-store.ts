@@ -11,7 +11,9 @@ import {
   formatEther,
   formatGwei,
   formatUnits,
-  isAddress
+  isAddress,
+  decodeEventLog,
+  parseAbi
 } from 'viem';
 import { mainnet, polygon, arbitrum, optimism, base, bsc } from 'viem/chains';
 
@@ -48,6 +50,19 @@ export interface TransactionInfo {
   nonce: number;
   transactionIndex: number | null;
   confirmations: number;
+  logs?: TransactionLog[];
+}
+
+export interface TransactionLog {
+  type: 'ERC20_Transfer' | 'ERC721_Transfer' | 'ERC1155_Transfer' | 'Unknown';
+  from: Address;
+  to: Address;
+  tokenAddress: Address;
+  value?: string; // For ERC20
+  tokenId?: string; // For ERC721/ERC1155
+  amount?: string; // For ERC1155
+  tokenSymbol?: string;
+  tokenName?: string;
 }
 
 export interface TokenBalance {
@@ -271,6 +286,218 @@ export const useChainStore = defineStore('chain', () => {
     currentChainId.value = chainId;
   }
 
+  // Helper function to parse transaction logs for token transfers
+  async function parseTransactionLogs(logs: any[]): Promise<TransactionLog[]> {
+    if (!logs || logs.length === 0) return [];
+
+    const parsedLogs: TransactionLog[] = [];
+
+    // ERC20/ERC721 Transfer event signature
+    const erc20TransferAbi = parseAbi([
+      'event Transfer(address indexed from, address indexed to, uint256 value)'
+    ]);
+
+    // ERC1155 event signatures
+    const erc1155TransferSingleAbi = parseAbi([
+      'event TransferSingle(address indexed operator, address indexed from, address indexed to, uint256 id, uint256 value)'
+    ]);
+
+    const erc1155TransferBatchAbi = parseAbi([
+      'event TransferBatch(address indexed operator, address indexed from, address indexed to, uint256[] ids, uint256[] values)'
+    ]);
+
+    console.log('Total logs to parse:', logs.length);
+
+    for (const log of logs) {
+      try {
+        const tokenAddress = log.address as Address;
+
+        // ERC20/ERC721 Transfer event
+        if (log.topics[0] === '0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef') {
+          // Check if it's ERC721 (tokenId is indexed) or ERC20 (value in data)
+          // ERC721: 4 topics (signature, from, to, tokenId) and empty or minimal data
+          // ERC20: 3 topics (signature, from, to) and value in data
+          const isERC721 = log.topics.length === 4;
+
+          console.log('Transfer event detected:', {
+            tokenAddress,
+            topics: log.topics.length,
+            dataLength: log.data.length,
+            isERC721
+          });
+
+          // Fetch token info
+          let tokenSymbol = 'Unknown';
+          let tokenName = 'Unknown Token';
+          try {
+            const [symbol, name] = await Promise.all([
+              client.value.readContract({
+                address: tokenAddress,
+                abi: ERC20_ABI,
+                functionName: 'symbol'
+              }).catch(() => 'Unknown'),
+              client.value.readContract({
+                address: tokenAddress,
+                abi: ERC20_ABI,
+                functionName: 'name'
+              }).catch(() => 'Unknown Token')
+            ]);
+            tokenSymbol = symbol as string;
+            tokenName = name as string;
+          } catch (e) {
+            console.log('Failed to fetch token metadata:', e);
+          }
+
+          if (isERC721) {
+            // ERC721/NFT Transfer - tokenId is in topics[3]
+            const tokenId = BigInt(log.topics[3]).toString();
+
+            console.log('Adding ERC721 transfer:', { tokenId, tokenSymbol, tokenName });
+
+            parsedLogs.push({
+              type: 'ERC721_Transfer',
+              from: `0x${log.topics[1].slice(26)}` as Address,
+              to: `0x${log.topics[2].slice(26)}` as Address,
+              tokenAddress,
+              tokenId,
+              tokenSymbol,
+              tokenName
+            });
+          } else {
+            // ERC20 Token Transfer
+            const decoded = decodeEventLog({
+              abi: erc20TransferAbi,
+              data: log.data,
+              topics: log.topics
+            });
+
+            const value = formatWithMaxDecimals(formatUnits(decoded.args.value as bigint, 18));
+
+            console.log('Adding ERC20 transfer:', { value, tokenSymbol, tokenName });
+
+            parsedLogs.push({
+              type: 'ERC20_Transfer',
+              from: decoded.args.from as Address,
+              to: decoded.args.to as Address,
+              tokenAddress,
+              value,
+              tokenSymbol,
+              tokenName
+            });
+          }
+        }
+        // ERC1155 TransferSingle event
+        else if (log.topics[0] === '0xc3d58168c5ae7397731d063d5bbf3d657854427343f4c083240f7aacaa2d0f62') {
+          console.log('ERC1155 TransferSingle event detected:', { tokenAddress });
+
+          // Fetch token info
+          let tokenSymbol = 'ERC1155';
+          let tokenName = 'ERC1155 Token';
+          try {
+            const [symbol, name] = await Promise.all([
+              client.value.readContract({
+                address: tokenAddress,
+                abi: ERC20_ABI,
+                functionName: 'symbol'
+              }).catch(() => 'ERC1155'),
+              client.value.readContract({
+                address: tokenAddress,
+                abi: ERC20_ABI,
+                functionName: 'name'
+              }).catch(() => 'ERC1155 Token')
+            ]);
+            tokenSymbol = symbol as string;
+            tokenName = name as string;
+          } catch (e) {
+            console.log('Failed to fetch ERC1155 token metadata:', e);
+          }
+
+          const decoded = decodeEventLog({
+            abi: erc1155TransferSingleAbi,
+            data: log.data,
+            topics: log.topics
+          });
+
+          const tokenId = (decoded.args.id as bigint).toString();
+          const value = (decoded.args.value as bigint).toString();
+
+          console.log('Adding ERC1155 TransferSingle:', { tokenId, value, tokenSymbol, tokenName });
+
+          parsedLogs.push({
+            type: 'ERC1155_Transfer',
+            from: decoded.args.from as Address,
+            to: decoded.args.to as Address,
+            tokenAddress,
+            tokenId,
+            value,
+            tokenSymbol,
+            tokenName
+          });
+        }
+        // ERC1155 TransferBatch event
+        else if (log.topics[0] === '0x4a39dc06d4c0dbc64b70af90fd698a233a518aa5d07e595d983b8c0526c8f7fb') {
+          console.log('ERC1155 TransferBatch event detected:', { tokenAddress });
+
+          // Fetch token info
+          let tokenSymbol = 'ERC1155';
+          let tokenName = 'ERC1155 Token';
+          try {
+            const [symbol, name] = await Promise.all([
+              client.value.readContract({
+                address: tokenAddress,
+                abi: ERC20_ABI,
+                functionName: 'symbol'
+              }).catch(() => 'ERC1155'),
+              client.value.readContract({
+                address: tokenAddress,
+                abi: ERC20_ABI,
+                functionName: 'name'
+              }).catch(() => 'ERC1155 Token')
+            ]);
+            tokenSymbol = symbol as string;
+            tokenName = name as string;
+          } catch (e) {
+            console.log('Failed to fetch ERC1155 token metadata:', e);
+          }
+
+          const decoded = decodeEventLog({
+            abi: erc1155TransferBatchAbi,
+            data: log.data,
+            topics: log.topics
+          });
+
+          const ids = decoded.args.ids as bigint[];
+          const values = decoded.args.values as bigint[];
+
+          console.log('Adding ERC1155 TransferBatch:', { idsCount: ids.length, tokenSymbol, tokenName });
+
+          // Create a log entry for each token in the batch
+          ids.forEach((id, index) => {
+            const value = values[index];
+            if (value !== undefined) {
+              parsedLogs.push({
+                type: 'ERC1155_Transfer',
+                from: decoded.args.from as Address,
+                to: decoded.args.to as Address,
+                tokenAddress,
+                tokenId: id.toString(),
+                value: value.toString(),
+                tokenSymbol,
+                tokenName
+              });
+            }
+          });
+        }
+      } catch (err) {
+        // Skip logs that can't be decoded
+        console.error('Failed to decode log:', err, log);
+      }
+    }
+
+    console.log('Parsed logs count:', parsedLogs.length);
+    return parsedLogs;
+  }
+
   // Transaction Actions
   async function getTransaction(hash: Hash): Promise<TransactionInfo> {
     try {
@@ -305,6 +532,12 @@ export const useChainStore = defineStore('chain', () => {
         ? receipt.status === 'success' ? 'success' : 'reverted'
         : 'pending';
 
+      // Parse logs for token transfers
+      console.log('[getTransaction] Receipt logs:', receipt?.logs);
+      console.log('[getTransaction] Receipt logs count:', receipt?.logs?.length || 0);
+      const logs = receipt?.logs ? await parseTransactionLogs(receipt.logs) : [];
+      console.log('[getTransaction] Parsed logs result:', logs);
+
       return {
         hash: tx.hash,
         from: tx.from,
@@ -321,7 +554,8 @@ export const useChainStore = defineStore('chain', () => {
         input: tx.input,
         nonce: tx.nonce,
         transactionIndex: tx.transactionIndex,
-        confirmations
+        confirmations,
+        logs
       };
     } catch (err) {
       error.value = err instanceof Error ? err.message : 'Failed to fetch transaction';
