@@ -1,20 +1,15 @@
 <template>
   <q-page class="transaction-page">
-    <div class="page-content">
-      <!-- Loading State -->
-      <div v-if="loading" class="loading-container fade-in">
-        <base-card elevated>
-          <q-card-section>
-            <q-skeleton type="text" width="40%" height="30px" class="q-mb-md" />
-            <q-skeleton type="text" width="60%" height="20px" class="q-mb-lg" />
-            <q-separator class="q-mb-lg" />
-            <q-skeleton v-for="i in 6" :key="i" type="text" height="40px" class="q-mb-sm" />
-          </q-card-section>
-        </base-card>
-      </div>
+    <!-- Loading Monster -->
+    <loading-monster
+      v-if="loading"
+      message="Fetching transaction from blockchain..."
+      @cancel="handleCancelLoading"
+    />
 
+    <div class="page-content">
       <!-- Transaction Details -->
-      <div v-else-if="transaction" class="transaction-details fade-in">
+      <div v-if="transaction" class="transaction-details fade-in">
         <!-- Header -->
         <div class="page-header">
           <q-btn
@@ -294,6 +289,7 @@ import { useChainStore } from '../stores/chain-store';
 import { useSearchStore } from '../stores/search-store';
 import BaseCard from '../components/BaseCard.vue';
 import WalletAddressChip from '../components/WalletAddressChip.vue';
+import LoadingMonster from '../components/LoadingMonster.vue';
 
 const route = useRoute();
 const router = useRouter();
@@ -327,6 +323,11 @@ const formatTimestamp = (timestamp: bigint): string => {
 
 const navigateToAddress = (address: string) => {
   router.push({ name: 'address', params: { address } });
+};
+
+const handleCancelLoading = () => {
+  // Navigate back to home page
+  router.push({ name: 'home' });
 };
 
 const loadTransaction = async () => {
