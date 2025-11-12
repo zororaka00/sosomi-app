@@ -4,6 +4,7 @@ import { LocalStorage } from 'quasar';
 import {
   createPublicClient,
   http,
+  fallback,
   type Chain,
   type PublicClient,
   type Address,
@@ -27,7 +28,7 @@ import polygonIcon from '../assets/polygon.svg';
 
 export interface ChainConfig {
   chain: Chain;
-  rpcUrl: string;
+  rpcUrls: string[]; // Multiple RPC URLs for fallback
   name: string;
   icon: string;
   iconUrl: string; // SVG logo URL
@@ -119,51 +120,93 @@ const ERC20_ABI = [
   }
 ] as const;
 
-// Supported chains configuration (Mainnet only)
+// Supported chains configuration with multiple RPC URLs (Mainnet only)
 export const SUPPORTED_CHAINS: Record<string, ChainConfig> = {
   ethereum: {
     chain: mainnet,
-    rpcUrl: 'https://eth.llamarpc.com',
+    rpcUrls: [
+      'https://eth.llamarpc.com',
+      'https://ethereum-rpc.publicnode.com',
+      'https://1rpc.io/eth',
+      'https://rpc.builder0x69.io',
+      'https://ethereum.blockpi.network/v1/rpc/public'
+    ],
     name: 'Ethereum',
     icon: 'token',
     iconUrl: ethereumIcon
   },
   bnb: {
     chain: bsc,
-    rpcUrl: 'https://bsc-dataseed.bnbchain.org',
+    rpcUrls: [
+      'https://bsc-dataseed.bnbchain.org',
+      'https://bsc-dataseed1.bnbchain.org',
+      'https://1rpc.io/bnb',
+      'https://bsc.drpc.org',
+      'https://bsc.meowrpc.com'
+    ],
     name: 'BNB Chain',
     icon: 'currency_bitcoin',
     iconUrl: bnbIcon
   },
   base: {
     chain: base,
-    rpcUrl: 'https://mainnet.base.org',
+    rpcUrls: [
+      'https://mainnet.base.org',
+      'https://base.llamarpc.com',
+      'https://1rpc.io/base',
+      'https://base.drpc.org',
+      'https://base.meowrpc.com'
+    ],
     name: 'Base',
     icon: 'foundation',
     iconUrl: baseIcon
   },
   arbitrum: {
     chain: arbitrum,
-    rpcUrl: 'https://arb1.arbitrum.io/rpc',
+    rpcUrls: [
+      'https://arb1.arbitrum.io/rpc',
+      'https://arbitrum.llamarpc.com',
+      'https://1rpc.io/arb',
+      'https://arbitrum.drpc.org',
+      'https://arbitrum.meowrpc.com'
+    ],
     name: 'Arbitrum',
     icon: 'trending_up',
     iconUrl: arbitrumIcon
   },
   optimism: {
     chain: optimism,
-    rpcUrl: 'https://mainnet.optimism.io',
+    rpcUrls: [
+      'https://mainnet.optimism.io',
+      'https://optimism.llamarpc.com',
+      'https://1rpc.io/op',
+      'https://optimism.drpc.org',
+      'https://optimism.meowrpc.com'
+    ],
     name: 'Optimism',
     icon: 'lightbulb',
     iconUrl: optimismIcon
   },
   polygon: {
     chain: polygon,
-    rpcUrl: 'https://polygon-rpc.com',
+    rpcUrls: [
+      'https://polygon-rpc.com',
+      'https://polygon.llamarpc.com',
+      'https://1rpc.io/matic',
+      'https://polygon.drpc.org',
+      'https://polygon.meowrpc.com'
+    ],
     name: 'Polygon',
     icon: 'polyline',
     iconUrl: polygonIcon
   }
 };
+
+// Log available RPCs for debugging
+console.log('[Chain] Available RPC endpoints:');
+Object.entries(SUPPORTED_CHAINS).forEach(([key, config]) => {
+  console.log(`  ${config.name}: ${config.rpcUrls.length} RPCs`, config.rpcUrls);
+});
 
 export const useChainStore = defineStore('chain', () => {
   // Load saved chain from LocalStorage, default to 'ethereum'
@@ -268,12 +311,21 @@ export const useChainStore = defineStore('chain', () => {
         throw new Error(`Unsupported chain: ${chainId}`);
       }
 
+      // Create fallback transport with multiple RPCs for redundancy and speed
+      const transports = config.rpcUrls.length > 0
+        ? config.rpcUrls.map(url => http(url))
+        : [http()]; // Fallback to default if no RPCs available
+
       const newClient = createPublicClient({
         chain: config.chain,
-        transport: http(config.rpcUrl)
+        transport: fallback(transports, {
+          rank: false // Use race mode - fastest response wins
+        })
       });
 
       clients.set(chainId, newClient);
+
+      console.log(`[Chain] Created client for ${config.name} with ${config.rpcUrls.length} RPC endpoints`);
     }
 
     return clients.get(chainId)!;
