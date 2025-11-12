@@ -128,7 +128,7 @@ export const SUPPORTED_CHAINS: Record<string, ChainConfig> = {
       'https://eth.llamarpc.com',
       'https://ethereum-rpc.publicnode.com',
       'https://1rpc.io/eth',
-      'https://rpc.builder0x69.io',
+      'https://eth.drpc.org',
       'https://ethereum.blockpi.network/v1/rpc/public'
     ],
     name: 'Ethereum',
@@ -201,12 +201,6 @@ export const SUPPORTED_CHAINS: Record<string, ChainConfig> = {
     iconUrl: polygonIcon
   }
 };
-
-// Log available RPCs for debugging
-console.log('[Chain] Available RPC endpoints:');
-Object.entries(SUPPORTED_CHAINS).forEach(([key, config]) => {
-  console.log(`  ${config.name}: ${config.rpcUrls.length} RPCs`, config.rpcUrls);
-});
 
 export const useChainStore = defineStore('chain', () => {
   // Load saved chain from LocalStorage, default to 'ethereum'
@@ -324,8 +318,6 @@ export const useChainStore = defineStore('chain', () => {
       });
 
       clients.set(chainId, newClient);
-
-      console.log(`[Chain] Created client for ${config.name} with ${config.rpcUrls.length} RPC endpoints`);
     }
 
     return clients.get(chainId)!;
@@ -358,8 +350,6 @@ export const useChainStore = defineStore('chain', () => {
       'event TransferBatch(address indexed operator, address indexed from, address indexed to, uint256[] ids, uint256[] values)'
     ]);
 
-    console.log('Total logs to parse:', logs.length);
-
     for (const log of logs) {
       try {
         const tokenAddress = log.address as Address;
@@ -371,18 +361,13 @@ export const useChainStore = defineStore('chain', () => {
           // ERC20: 3 topics (signature, from, to) and value in data
           const isERC721 = log.topics.length === 4;
 
-          console.log('Transfer event detected:', {
-            tokenAddress,
-            topics: log.topics.length,
-            dataLength: log.data.length,
-            isERC721
-          });
-
           // Fetch token info
           let tokenSymbol = 'Unknown';
           let tokenName = 'Unknown Token';
+          let tokenDecimals = 18; // Default to 18 decimals
+
           try {
-            const [symbol, name] = await Promise.all([
+            const [symbol, name, decimals] = await Promise.all([
               client.value.readContract({
                 address: tokenAddress,
                 abi: ERC20_ABI,
@@ -392,10 +377,16 @@ export const useChainStore = defineStore('chain', () => {
                 address: tokenAddress,
                 abi: ERC20_ABI,
                 functionName: 'name'
-              }).catch(() => 'Unknown Token')
+              }).catch(() => 'Unknown Token'),
+              client.value.readContract({
+                address: tokenAddress,
+                abi: ERC20_ABI,
+                functionName: 'decimals'
+              }).catch(() => 18)
             ]);
             tokenSymbol = symbol as string;
             tokenName = name as string;
+            tokenDecimals = decimals as number;
           } catch (e) {
             console.log('Failed to fetch token metadata:', e);
           }
@@ -403,8 +394,6 @@ export const useChainStore = defineStore('chain', () => {
           if (isERC721) {
             // ERC721/NFT Transfer - tokenId is in topics[3]
             const tokenId = BigInt(log.topics[3]).toString();
-
-            console.log('Adding ERC721 transfer:', { tokenId, tokenSymbol, tokenName });
 
             parsedLogs.push({
               type: 'ERC721_Transfer',
@@ -423,9 +412,8 @@ export const useChainStore = defineStore('chain', () => {
               topics: log.topics
             });
 
-            const value = formatWithMaxDecimals(formatUnits(decoded.args.value as bigint, 18));
-
-            console.log('Adding ERC20 transfer:', { value, tokenSymbol, tokenName });
+            // Use actual token decimals instead of hardcoding to 18
+            const value = formatWithMaxDecimals(formatUnits(decoded.args.value as bigint, tokenDecimals));
 
             parsedLogs.push({
               type: 'ERC20_Transfer',
@@ -440,7 +428,6 @@ export const useChainStore = defineStore('chain', () => {
         }
         // ERC1155 TransferSingle event
         else if (log.topics[0] === '0xc3d58168c5ae7397731d063d5bbf3d657854427343f4c083240f7aacaa2d0f62') {
-          console.log('ERC1155 TransferSingle event detected:', { tokenAddress });
 
           // Fetch token info
           let tokenSymbol = 'ERC1155';
@@ -473,8 +460,6 @@ export const useChainStore = defineStore('chain', () => {
           const tokenId = (decoded.args.id as bigint).toString();
           const value = (decoded.args.value as bigint).toString();
 
-          console.log('Adding ERC1155 TransferSingle:', { tokenId, value, tokenSymbol, tokenName });
-
           parsedLogs.push({
             type: 'ERC1155_Transfer',
             from: decoded.args.from as Address,
@@ -488,7 +473,6 @@ export const useChainStore = defineStore('chain', () => {
         }
         // ERC1155 TransferBatch event
         else if (log.topics[0] === '0x4a39dc06d4c0dbc64b70af90fd698a233a518aa5d07e595d983b8c0526c8f7fb') {
-          console.log('ERC1155 TransferBatch event detected:', { tokenAddress });
 
           // Fetch token info
           let tokenSymbol = 'ERC1155';
@@ -521,8 +505,6 @@ export const useChainStore = defineStore('chain', () => {
           const ids = decoded.args.ids as bigint[];
           const values = decoded.args.values as bigint[];
 
-          console.log('Adding ERC1155 TransferBatch:', { idsCount: ids.length, tokenSymbol, tokenName });
-
           // Create a log entry for each token in the batch
           ids.forEach((id, index) => {
             const value = values[index];
@@ -546,7 +528,6 @@ export const useChainStore = defineStore('chain', () => {
       }
     }
 
-    console.log('Parsed logs count:', parsedLogs.length);
     return parsedLogs;
   }
 
@@ -585,10 +566,7 @@ export const useChainStore = defineStore('chain', () => {
         : 'pending';
 
       // Parse logs for token transfers
-      console.log('[getTransaction] Receipt logs:', receipt?.logs);
-      console.log('[getTransaction] Receipt logs count:', receipt?.logs?.length || 0);
       const logs = receipt?.logs ? await parseTransactionLogs(receipt.logs) : [];
-      console.log('[getTransaction] Parsed logs result:', logs);
 
       return {
         hash: tx.hash,
