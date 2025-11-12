@@ -3,9 +3,9 @@
     <div class="search-container fade-in">
       <!-- Hero Section -->
       <div class="hero-section">
-        <h1 class="hero-title">Explore the Blockchain</h1>
+        <h1 class="hero-title">Blockchain Explorer</h1>
         <p class="hero-subtitle">
-          Search for transactions, wallets, or contracts across multiple chains
+          Search for transaction hash or address across multiple chain
         </p>
       </div>
 
@@ -15,12 +15,12 @@
           <q-input
             v-model="searchQuery"
             outlined
-            placeholder="Enter tx hash, wallet address, or contract address"
+            placeholder="Enter tx hash or address"
             class="search-input"
             @keyup.enter="handleSearch"
           >
             <template v-slot:prepend>
-              <q-icon name="search" color="grey-6" />
+              <q-icon name="mdi-magnify" color="grey-6" />
             </template>
 
             <template v-slot:append>
@@ -29,7 +29,7 @@
                 flat
                 dense
                 round
-                icon="close"
+                icon="mdi-close"
                 @click="searchQuery = ''"
                 color="grey-6"
               />
@@ -41,7 +41,7 @@
             rounded
             color="primary"
             label="Search"
-            icon-right="arrow_forward"
+            icon-right="mdi-magnify"
             no-caps
             class="search-btn scale-on-press"
             :loading="searching"
@@ -50,25 +50,6 @@
           />
         </q-card-section>
       </base-card>
-
-      <!-- Quick Examples -->
-      <div class="examples-section slide-up-soft stagger-1">
-        <div class="examples-title">Try these examples:</div>
-        <div class="examples-chips">
-          <q-chip
-            v-for="example in examples"
-            :key="example.label"
-            clickable
-            outline
-            color="primary"
-            :icon="example.icon"
-            @click="searchQuery = example.value"
-            class="example-chip hover-lift"
-          >
-            {{ example.label }}
-          </q-chip>
-        </div>
-      </div>
 
       <!-- Recent Searches (if any) -->
       <div v-if="recentSearches.length > 0" class="recent-section slide-up-soft stagger-2">
@@ -81,7 +62,7 @@
                 dense
                 round
                 size="sm"
-                icon="close"
+                icon="mdi-close-circle"
                 @click="clearRecentSearches"
               >
                 <q-tooltip>Clear all</q-tooltip>
@@ -93,20 +74,23 @@
                 v-for="(search, index) in recentSearches"
                 :key="index"
                 clickable
-                @click="searchQuery = search.query"
+                @click="handleRecentClick(search)"
                 class="recent-item"
+                v-ripple
               >
                 <q-item-section avatar>
                   <q-icon :name="getSearchTypeIcon(search.type)" color="primary" />
                 </q-item-section>
 
                 <q-item-section>
-                  <q-item-label class="recent-query">{{ truncate(search.query, 30) }}</q-item-label>
-                  <q-item-label caption>{{ search.type }}</q-item-label>
+                  <q-item-label class="recent-query">{{ truncateAddress(search.query) }}</q-item-label>
+                  <q-item-label caption>
+                    {{ search.type }} · {{ getChainName(search.chainId || 'ethereum') }}
+                  </q-item-label>
                 </q-item-section>
 
                 <q-item-section side>
-                  <q-icon name="chevron_right" color="grey-5" />
+                  <q-icon name="mdi-chevron-right" color="grey-5" />
                 </q-item-section>
               </q-item>
             </q-list>
@@ -118,39 +102,30 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
+import { ref, computed } from 'vue';
 import { useRouter } from 'vue-router';
 import { isAddress, isHash } from 'viem';
 import { Notify } from 'quasar';
+import { storeToRefs } from 'pinia';
 import BaseCard from '../components/BaseCard.vue';
 import { useSearchStore } from '../stores/search-store';
+import { useChainStore } from '../stores/chain-store';
 
 const router = useRouter();
 const searchStore = useSearchStore();
+const chainStore = useChainStore();
 
 const searchQuery = ref('');
 const searching = ref(false);
 
-// Use store for recent searches
-const recentSearches = searchStore.recentSearches;
+// Use storeToRefs for reactive access
+const { recentSearches } = storeToRefs(searchStore);
+const { currentChainId } = storeToRefs(chainStore);
 
-const examples = [
-  {
-    label: 'View Transaction',
-    icon: 'receipt_long',
-    value: '0x...' // Will be a real example
-  },
-  {
-    label: 'Check Wallet',
-    icon: 'account_balance_wallet',
-    value: '0x...' // Will be a real example
-  },
-  {
-    label: 'Explore Contract',
-    icon: 'description',
-    value: '0x...' // Will be a real example
-  }
-];
+const getChainName = (chainId: string): string => {
+  const chains = chainStore.SUPPORTED_CHAINS;
+  return chains[chainId]?.name || chainId;
+};
 
 const handleSearch = async () => {
   const query = searchQuery.value.trim();
@@ -159,7 +134,7 @@ const handleSearch = async () => {
     Notify.create({
       message: 'Please enter a search query',
       color: 'warning',
-      icon: 'warning',
+      icon: 'mdi-alert',
       position: 'top',
       timeout: 2000
     });
@@ -172,18 +147,15 @@ const handleSearch = async () => {
     // Determine search type
     if (isHash(query)) {
       // It's a transaction hash
-      addToRecentSearches(query, 'Transaction');
       await router.push({ name: 'transaction', params: { hash: query } });
     } else if (isAddress(query)) {
-      // It's an address - need to determine if wallet or contract
-      // We'll check this in the detail page
-      addToRecentSearches(query, 'Wallet');
+      // It's an address - will determine if wallet or contract in detail page
       await router.push({ name: 'address', params: { address: query } });
     } else {
       Notify.create({
         message: 'Invalid address or transaction hash',
         color: 'negative',
-        icon: 'error',
+        icon: 'mdi-alert-circle',
         position: 'top',
         timeout: 3000
       });
@@ -193,7 +165,7 @@ const handleSearch = async () => {
     Notify.create({
       message: 'Search failed. Please try again.',
       color: 'negative',
-      icon: 'error',
+      icon: 'mdi-alert-circle',
       position: 'top',
       timeout: 3000
     });
@@ -202,26 +174,48 @@ const handleSearch = async () => {
   }
 };
 
-const addToRecentSearches = (query: string, type: 'Transaction' | 'Wallet' | 'Contract') => {
-  searchStore.addSearch(query, type);
+const handleRecentClick = async (search: any) => {
+  // Switch to the chain if different (fallback to ethereum if chainId not set)
+  const searchChainId = search.chainId || 'ethereum';
+  if (searchChainId !== currentChainId.value) {
+    currentChainId.value = searchChainId;
+    Notify.create({
+      message: `Switched to ${getChainName(searchChainId)}`,
+      color: 'info',
+      icon: 'mdi-check-circle',
+      position: 'top',
+      timeout: 2000
+    });
+  }
+
+  searchQuery.value = search.query;
+  handleSearch();
 };
+
 
 const clearRecentSearches = () => {
   searchStore.clearSearchHistory();
+  Notify.create({
+    message: 'Search history cleared',
+    color: 'positive',
+    icon: 'mdi-check-circle',
+    position: 'top',
+    timeout: 2000
+  });
 };
 
 const getSearchTypeIcon = (type: string): string => {
   const icons: Record<string, string> = {
-    Transaction: 'receipt_long',
-    Wallet: 'account_balance_wallet',
-    Contract: 'description'
+    Transaction: 'mdi-receipt-text',
+    Address: 'mdi-wallet'
   };
-  return icons[type] || 'search';
+  return icons[type] || 'mdi-magnify';
 };
 
-const truncate = (str: string, length: number): string => {
-  if (str.length <= length) return str;
-  return `${str.slice(0, length - 3)}...`;
+const truncateAddress = (str: string): string => {
+  if (!str || str.length <= 12) return str;
+  // Format: 0x1234xxxx5678 (first 6 chars + xxxx + last 4 chars)
+  return `${str.slice(0, 6)}xxxx${str.slice(-4)}`;
 };
 
 </script>
@@ -296,33 +290,6 @@ const truncate = (str: string, length: number): string => {
   letter-spacing: 0.01em;
 }
 
-/* Examples Section */
-.examples-section {
-  margin-bottom: 32px;
-  opacity: 0;
-  animation: fadeIn 0.5s ease-out 0.1s forwards;
-}
-
-.examples-title {
-  font-size: 14px;
-  font-weight: 600;
-  color: #6b7280;
-  margin-bottom: 12px;
-  text-align: center;
-}
-
-.examples-chips {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-  justify-content: center;
-}
-
-.example-chip {
-  border-radius: 8px;
-  font-weight: 500;
-}
-
 /* Recent Section */
 .recent-section {
   opacity: 0;
@@ -346,6 +313,13 @@ const truncate = (str: string, length: number): string => {
 .recent-item {
   border-radius: 8px;
   transition: background-color 0.2s ease;
+  min-height: 56px;
+  cursor: pointer;
+  -webkit-tap-highlight-color: rgba(0, 0, 0, 0.1);
+}
+
+.recent-item:active {
+  background-color: #e5e7eb;
 }
 
 .recent-item:hover {

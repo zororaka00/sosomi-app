@@ -40,7 +40,7 @@
             </q-item-section>
 
             <q-item-section side v-if="chain.id === currentChainId">
-              <q-icon name="check_circle" color="primary" size="20px" />
+              <q-icon name="mdi-check-circle" color="primary" size="20px" />
             </q-item-section>
           </q-item>
         </q-list>
@@ -51,41 +51,46 @@
 
 <script setup lang="ts">
 import { computed } from 'vue';
-import { useChain } from '../composables/useChain';
+import { storeToRefs } from 'pinia';
+import { useChainStore } from '../stores/chain-store';
 import { Notify } from 'quasar';
 
-const { currentChainId, currentChain, chains, switchChain } = useChain();
+const chainStore = useChainStore();
+const { currentChainId, currentChain, chains } = storeToRefs(chainStore);
 
-const availableChains = computed(() => chains);
+const availableChains = computed(() => chains.value);
 
-const currentChainLabel = computed(() => currentChain?.name || 'Select Network');
+const currentChainLabel = computed(() => currentChain.value?.name || 'Select Network');
 
 const getChainDescription = (chainId: string): string => {
   const descriptions: Record<string, string> = {
     ethereum: 'Mainnet',
-    polygon: 'Layer 2',
+    bnb: 'Mainnet',
+    base: 'Layer 2',
     arbitrum: 'Layer 2',
     optimism: 'Layer 2',
-    base: 'Layer 2'
+    polygon: 'Layer 2'
   };
   return descriptions[chainId] || '';
 };
 
 const handleChainSwitch = (chainId: string) => {
   try {
-    switchChain(chainId);
+    chainStore.switchChain(chainId);
+    const chainName = chains.value.find((c: any) => c.id === chainId)?.name;
     Notify.create({
-      message: `Switched to ${chains.find((c: any) => c.id === chainId)?.name}`,
+      message: `Switched to ${chainName}`,
       color: 'positive',
-      icon: 'check_circle',
+      icon: 'mdi-check-circle',
       position: 'top',
       timeout: 2000
     });
   } catch (err) {
+    console.error('Failed to switch chain:', err);
     Notify.create({
       message: 'Failed to switch network',
       color: 'negative',
-      icon: 'error',
+      icon: 'mdi-alert-circle',
       position: 'top',
       timeout: 2000
     });

@@ -20,14 +20,12 @@
           <q-btn
             flat
             round
-            icon="arrow_back"
+            icon="mdi-arrow-left"
             @click="$router.back()"
             class="back-btn"
           />
           <div>
-            <h1 class="page-title">
-              {{ addressType === 'contract' ? 'Contract' : 'Wallet' }} Details
-            </h1>
+            <h1 class="page-title">Address Detail</h1>
             <p class="page-subtitle">{{ currentChain?.name }}</p>
           </div>
         </div>
@@ -37,15 +35,13 @@
           <q-card-section>
             <div class="address-header">
               <q-icon
-                :name="addressType === 'contract' ? 'description' : 'account_balance_wallet'"
+                name="mdi-wallet"
                 size="48px"
                 color="primary"
               />
               <div class="address-info">
-                <div class="address-label">
-                  {{ addressType === 'contract' ? 'Contract Address' : 'Wallet Address' }}
-                </div>
-                <wallet-address-chip :address="walletInfo.address" :is-transaction-hash="true" />
+                <div class="address-label">Address</div>
+                <wallet-address-chip color="primary" :address="walletInfo.address" :is-transaction-hash="true" />
               </div>
             </div>
           </q-card-section>
@@ -56,7 +52,7 @@
           <q-card-section>
             <div class="balance-header">
               <h3 class="card-title">Native Balance</h3>
-              <q-icon name="account_balance" size="24px" color="primary" />
+              <q-icon name="mdi-cash" size="24px" color="primary" />
             </div>
             <div class="balance-amount">
               <span class="balance-value">{{ walletInfo.formattedBalance }}</span>
@@ -88,24 +84,6 @@
           </q-card-section>
         </base-card>
 
-        <!-- Contract Info (if contract) -->
-        <base-card
-          v-if="addressType === 'contract'"
-          class="contract-card slide-up-soft stagger-3"
-          bordered
-        >
-          <q-card-section>
-            <h3 class="card-title">Contract Information</h3>
-            <div class="contract-info">
-              <q-icon name="info" size="48px" color="info" />
-              <p class="contract-text">
-                This is a smart contract. Contract source code verification and
-                detailed interaction features are coming soon.
-              </p>
-            </div>
-          </q-card-section>
-        </base-card>
-
         <!-- Add Token Section (for custom tokens) -->
         <base-card class="add-token-card slide-up-soft stagger-4" bordered>
           <q-card-section>
@@ -113,6 +91,27 @@
             <p class="card-subtitle">
               Enter an ERC20 token contract address to check its balance for this address
             </p>
+
+            <!-- Saved Tokens List -->
+            <div v-if="chainStore.currentChainSavedTokens.length > 0" class="saved-tokens-section">
+              <div class="saved-tokens-title">Previously Added Tokens:</div>
+              <div class="saved-tokens-chips">
+                <q-chip
+                  v-for="token in chainStore.currentChainSavedTokens"
+                  :key="token.address"
+                  clickable
+                  outline
+                  color="primary"
+                  :icon="'mdi-coin'"
+                  @click="customTokenAddress = token.address"
+                  removable
+                  @remove="removeSavedToken(token.address)"
+                  class="saved-token-chip"
+                >
+                  {{ token.symbol }}
+                </q-chip>
+              </div>
+            </div>
 
             <div class="add-token-form">
               <q-input
@@ -123,7 +122,7 @@
                 :rules="[val => !val || isValidAddress(val) || 'Invalid address']"
               >
                 <template v-slot:prepend>
-                  <q-icon name="token" />
+                  <q-icon name="mdi-coin" />
                 </template>
               </q-input>
 
@@ -132,7 +131,7 @@
                 rounded
                 color="primary"
                 label="Add Token"
-                icon-right="add"
+                icon-right="mdi-plus"
                 no-caps
                 :loading="addingToken"
                 :disable="!customTokenAddress || !isValidAddress(customTokenAddress)"
@@ -148,7 +147,7 @@
       <div v-else-if="error" class="error-container fade-in">
         <base-card elevated>
           <q-card-section class="text-center">
-            <q-icon name="error_outline" size="64px" color="negative" class="q-mb-md" />
+            <q-icon name="mdi-alert-circle" size="64px" color="negative" class="q-mb-md" />
             <h3 class="text-h6 q-mb-sm">Address Not Found</h3>
             <p class="text-grey-7 q-mb-lg">{{ error }}</p>
             <q-btn
@@ -156,7 +155,7 @@
               rounded
               color="primary"
               label="Go Back"
-              icon="arrow_back"
+              icon="mdi-arrow-left"
               @click="$router.back()"
             />
           </q-card-section>
@@ -169,10 +168,11 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
+import { storeToRefs } from 'pinia';
 import { type Address, isAddress as viemIsAddress } from 'viem';
 import { Notify } from 'quasar';
-import { useWallet } from '../composables/useWallet';
-import { useChain } from '../composables/useChain';
+import { useChainStore } from '../stores/chain-store';
+import { useSearchStore } from '../stores/search-store';
 import BaseCard from '../components/BaseCard.vue';
 import WalletAddressChip from '../components/WalletAddressChip.vue';
 import TokenRow from '../components/TokenRow.vue';
@@ -180,11 +180,11 @@ import TokenRow from '../components/TokenRow.vue';
 const route = useRoute();
 const router = useRouter();
 
-const { getWalletInfo, isContract, getTokenBalance, loading, error } = useWallet();
-const { currentChain } = useChain();
+const chainStore = useChainStore();
+const searchStore = useSearchStore();
+const { currentChain, loading, error } = storeToRefs(chainStore);
 
-const walletInfo = ref<Awaited<ReturnType<typeof getWalletInfo>> | null>(null);
-const addressType = ref<'wallet' | 'contract'>('wallet');
+const walletInfo = ref<Awaited<ReturnType<typeof chainStore.getWalletInfo>> | null>(null);
 const customTokenAddress = ref('');
 const addingToken = ref(false);
 
@@ -196,12 +196,11 @@ const loadAddressInfo = async () => {
   const address = route.params.address as Address;
 
   try {
-    // Check if it's a contract
-    const isContractAddress = await isContract(address);
-    addressType.value = isContractAddress ? 'contract' : 'wallet';
+    // Add to recent searches
+    searchStore.addSearch(address, 'Address', chainStore.currentChainId);
 
     // Load wallet info (balance + tokens if any)
-    walletInfo.value = await getWalletInfo(address);
+    walletInfo.value = await chainStore.getWalletInfo(address);
   } catch (err) {
     console.error('Failed to load address info:', err);
   }
@@ -213,7 +212,7 @@ const addCustomToken = async () => {
   addingToken.value = true;
 
   try {
-    const tokenBalance = await getTokenBalance(
+    const tokenBalance = await chainStore.getTokenBalance(
       customTokenAddress.value as Address,
       walletInfo.value.address
     );
@@ -221,10 +220,17 @@ const addCustomToken = async () => {
     // Add to tokens list
     walletInfo.value.tokens.push(tokenBalance);
 
+    // Save token to store with chainId
+    chainStore.addSavedToken(
+      customTokenAddress.value as Address,
+      tokenBalance.symbol,
+      chainStore.currentChainId
+    );
+
     Notify.create({
       message: `Added ${tokenBalance.symbol}`,
       color: 'positive',
-      icon: 'check_circle',
+      icon: 'mdi-check-circle',
       position: 'top',
       timeout: 2000
     });
@@ -234,13 +240,24 @@ const addCustomToken = async () => {
     Notify.create({
       message: 'Failed to add token. Please check the address.',
       color: 'negative',
-      icon: 'error',
+      icon: 'mdi-alert-circle',
       position: 'top',
       timeout: 3000
     });
   } finally {
     addingToken.value = false;
   }
+};
+
+const removeSavedToken = (address: Address) => {
+  chainStore.removeSavedToken(address, chainStore.currentChainId);
+  Notify.create({
+    message: 'Token removed from saved list',
+    color: 'info',
+    icon: 'mdi-delete',
+    position: 'top',
+    timeout: 2000
+  });
 };
 
 onMounted(() => {
@@ -347,26 +364,6 @@ onMounted(() => {
   margin-bottom: 24px;
 }
 
-.contract-card {
-  margin-bottom: 24px;
-}
-
-.contract-info {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 16px;
-  padding: 24px;
-  text-align: center;
-}
-
-.contract-text {
-  font-size: 14px;
-  color: #6b7280;
-  margin: 0;
-  line-height: 1.6;
-}
-
 .add-token-card {
   margin-bottom: 24px;
 }
@@ -385,6 +382,35 @@ onMounted(() => {
 
 .add-token-btn {
   width: 100%;
+}
+
+.saved-tokens-section {
+  margin-bottom: 20px;
+  padding: 16px;
+  background-color: #f9fafb;
+  border-radius: 8px;
+}
+
+.saved-tokens-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: #6b7280;
+  margin-bottom: 12px;
+}
+
+.saved-tokens-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.saved-token-chip {
+  cursor: pointer;
+  transition: transform 0.2s ease;
+}
+
+.saved-token-chip:hover {
+  transform: translateY(-2px);
 }
 
 .loading-container,

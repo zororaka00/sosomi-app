@@ -57,10 +57,10 @@ const iconColor = computed(() => {
 const formattedBalance = computed(() => {
   const balance = parseFloat(props.token.balance);
   if (balance === 0) return '0';
-  if (balance < 0.0001) return '< 0.0001';
-  if (balance < 1) return balance.toFixed(4);
-  if (balance < 1000) return balance.toFixed(2);
-  return balance.toLocaleString('en-US', { maximumFractionDigits: 2 });
+  if (balance < 0.00000001) return '< 0.00000001';
+  if (balance < 1) return balance.toFixed(8);
+  if (balance < 1000) return balance.toFixed(Math.min(8, 2));
+  return balance.toLocaleString('en-US', { maximumFractionDigits: 8, minimumFractionDigits: 0 });
 });
 
 const handleClick = () => {

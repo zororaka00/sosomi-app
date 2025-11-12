@@ -4,7 +4,6 @@
       <q-toolbar class="toolbar">
         <q-toolbar-title class="toolbar__title">
           <router-link to="/" class="logo-link">
-            <q-icon name="search" size="28px" color="primary" />
             <span class="logo-text">Sosomi</span>
           </router-link>
         </q-toolbar-title>

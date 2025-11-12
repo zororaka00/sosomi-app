@@ -20,12 +20,12 @@
           <q-btn
             flat
             round
-            icon="arrow_back"
+            icon="mdi-arrow-left"
             @click="$router.back()"
             class="back-btn"
           />
           <div>
-            <h1 class="page-title">Transaction Details</h1>
+            <h1 class="page-title">Transaction Detail</h1>
             <p class="page-subtitle">View transaction information on {{ currentChain?.name }}</p>
           </div>
         </div>
@@ -34,7 +34,7 @@
         <base-card class="status-card slide-up-soft" elevated>
           <q-card-section class="status-content">
             <q-icon
-              :name="transaction.status === 'success' ? 'check_circle' : 'cancel'"
+              :name="transaction.status === 'success' ? 'mdi-check-circle' : 'mdi-close-circle'"
               :color="transaction.status === 'success' ? 'positive' : 'negative'"
               size="48px"
             />
@@ -60,9 +60,10 @@
               <div class="info-label">Transaction Hash</div>
               <div class="info-value">
                 <wallet-address-chip
+                  color="primary"
                   :address="transaction.hash"
                   :is-transaction-hash="true"
-                  icon="receipt_long"
+                  icon="mdi-receipt-text"
                 />
               </div>
             </div>
@@ -73,6 +74,7 @@
               <div class="info-label">From</div>
               <div class="info-value">
                 <wallet-address-chip
+                  color="primary"
                   :address="transaction.from"
                   :is-transaction-hash="true"
                   clickable
@@ -88,6 +90,7 @@
               <div class="info-value">
                 <wallet-address-chip
                   v-if="transaction.to"
+                  color="primary"
                   :address="transaction.to"
                   :is-transaction-hash="true"
                   clickable
@@ -129,9 +132,9 @@
               <div class="info-label">Timestamp</div>
               <div class="info-value">
                 <span v-if="transaction.timestamp">
-                  {{ formatTimestamp(transaction.timestamp) }}
+                  {{ formatTimestamp(transaction.timestamp) }}&nbsp;
                   <span class="text-grey-6">
-                    ({{ getTimeAgo(transaction.timestamp) }})
+                    ({{ chainStore.getTimeAgo(transaction.timestamp) }})
                   </span>
                 </span>
                 <span v-else class="text-grey-6">Pending...</span>
@@ -152,7 +155,7 @@
             <div v-if="transaction.gasUsed" class="info-row">
               <div class="info-label">Gas Used</div>
               <div class="info-value">
-                {{ transaction.gasUsed.toString() }}
+                {{ transaction.gasUsed.toString() }}&nbsp;
                 <span v-if="transactionCost" class="text-grey-6">
                   ({{ transactionCost.formattedCost }} {{ currentChain?.chain.nativeCurrency.symbol }})
                 </span>
@@ -185,15 +188,15 @@
       <div v-else-if="error" class="error-container fade-in">
         <base-card elevated>
           <q-card-section class="text-center">
-            <q-icon name="error_outline" size="64px" color="negative" class="q-mb-md" />
+            <q-icon name="mdi-alert-circle" size="64px" color="negative" class="q-mb-md" />
             <h3 class="text-h6 q-mb-sm">Transaction Not Found</h3>
-            <p class="text-grey-7 q-mb-lg">{{ error }}</p>
+            <!-- <p class="text-grey-7 q-mb-lg">{{ error }}</p> -->
             <q-btn
               unelevated
               rounded
               color="primary"
               label="Go Back"
-              icon="arrow_back"
+              icon="mdi-arrow-left"
               @click="$router.back()"
             />
           </q-card-section>
@@ -206,28 +209,30 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
+import { storeToRefs } from 'pinia';
 import type { Hash } from 'viem';
-import { useTransaction } from '../composables/useTransaction';
-import { useChain } from '../composables/useChain';
+import { useChainStore } from '../stores/chain-store';
+import { useSearchStore } from '../stores/search-store';
 import BaseCard from '../components/BaseCard.vue';
 import WalletAddressChip from '../components/WalletAddressChip.vue';
 
 const route = useRoute();
 const router = useRouter();
 
-const { getTransaction, getTransactionType, calculateTransactionCost, getTimeAgo, loading, error } = useTransaction();
-const { currentChain } = useChain();
+const chainStore = useChainStore();
+const searchStore = useSearchStore();
+const { currentChain, loading, error } = storeToRefs(chainStore);
 
-const transaction = ref<Awaited<ReturnType<typeof getTransaction>> | null>(null);
+const transaction = ref<Awaited<ReturnType<typeof chainStore.getTransaction>> | null>(null);
 
 const txType = computed(() => {
   if (!transaction.value) return 'Unknown';
-  return getTransactionType(transaction.value.input);
+  return chainStore.getTransactionType(transaction.value.input);
 });
 
 const transactionCost = computed(() => {
   if (!transaction.value?.gasUsed || !transaction.value?.gasPrice) return null;
-  return calculateTransactionCost(transaction.value.gasUsed, transaction.value.gasPrice);
+  return chainStore.calculateTransactionCost(transaction.value.gasUsed, transaction.value.gasPrice);
 });
 
 const formatTimestamp = (timestamp: bigint): string => {
@@ -242,7 +247,10 @@ const navigateToAddress = (address: string) => {
 const loadTransaction = async () => {
   const hash = route.params.hash as Hash;
   try {
-    transaction.value = await getTransaction(hash);
+    transaction.value = await chainStore.getTransaction(hash);
+
+    // Add to recent searches
+    searchStore.addSearch(hash, 'Transaction', chainStore.currentChainId);
   } catch (err) {
     console.error('Failed to load transaction:', err);
   }

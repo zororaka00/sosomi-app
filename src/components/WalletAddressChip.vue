@@ -25,7 +25,7 @@
       dense
       round
       size="sm"
-      icon="content_copy"
+      icon="mdi-content-copy"
       @click="copyAddress"
       class="wallet-chip__copy"
     >
@@ -38,27 +38,25 @@
 import { computed } from 'vue';
 import { copyToClipboard, Notify } from 'quasar';
 
-const props = withDefaults(
-  defineProps<{
-    address: string;
-    truncate?: boolean;
-    copyable?: boolean;
-    clickable?: boolean;
-    icon?: string;
-    color?: string;
-    showTooltip?: boolean;
-    isTransactionHash?: boolean; // Specifically for transaction hashes
-  }>(),
-  {
-    truncate: true,
-    copyable: true,
-    clickable: false,
-    icon: 'account_balance_wallet',
-    color: 'primary',
-    showTooltip: true,
-    isTransactionHash: false
-  }
-);
+interface WalletAddressChipProps {
+  address: string;
+  clickable?: boolean;
+  isTransactionHash?: boolean;
+  icon?: string;
+  color?: string;
+  copyable?: boolean;
+  truncate?: boolean;
+  showTooltip?: boolean;
+}
+
+const props = withDefaults(defineProps<WalletAddressChipProps>(), {
+  clickable: false,
+  isTransactionHash: false,
+  icon: 'mdi-wallet',
+  copyable: true,
+  truncate: false,
+  showTooltip: true,
+});
 
 const emit = defineEmits<{
   click: [];
@@ -86,17 +84,17 @@ const copyAddress = async () => {
     Notify.create({
       message: 'Address copied to clipboard',
       color: 'positive',
-      icon: 'check_circle',
+      icon: 'mdi-check-circle',
       position: 'top',
-      timeout: 2000
+      timeout: 1500
     });
   } catch (err) {
     Notify.create({
-      message: 'Failed to copy address',
+      message: 'Failed to copy',
       color: 'negative',
-      icon: 'error',
+      icon: 'mdi-alert-circle',
       position: 'top',
-      timeout: 2000
+      timeout: 1500
     });
   }
 };
