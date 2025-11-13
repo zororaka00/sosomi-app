@@ -1,20 +1,15 @@
 <template>
   <q-page class="address-page">
-    <div class="page-content">
-      <!-- Loading State -->
-      <div v-if="loading" class="loading-container fade-in">
-        <base-card elevated>
-          <q-card-section>
-            <q-skeleton type="text" width="40%" height="30px" class="q-mb-md" />
-            <q-skeleton type="text" width="60%" height="20px" class="q-mb-lg" />
-            <q-separator class="q-mb-lg" />
-            <q-skeleton v-for="i in 4" :key="i" type="text" height="60px" class="q-mb-sm" />
-          </q-card-section>
-        </base-card>
-      </div>
+    <!-- Loading Monster -->
+    <loading-monster
+      v-if="loading"
+      message="Loading address data..."
+      @cancel="handleCancelLoading"
+    />
 
+    <div class="page-content">
       <!-- Address Details -->
-      <div v-else-if="walletInfo" class="address-details fade-in">
+      <div v-if="walletInfo" class="address-details fade-in">
         <!-- Header -->
         <div class="page-header">
           <q-btn
@@ -176,6 +171,7 @@ import { useSearchStore } from '../stores/search-store';
 import BaseCard from '../components/BaseCard.vue';
 import WalletAddressChip from '../components/WalletAddressChip.vue';
 import TokenRow from '../components/TokenRow.vue';
+import LoadingMonster from '../components/LoadingMonster.vue';
 
 const route = useRoute();
 const router = useRouter();
@@ -190,6 +186,11 @@ const addingToken = ref(false);
 
 const isValidAddress = (addr: string): boolean => {
   return viemIsAddress(addr);
+};
+
+const handleCancelLoading = () => {
+  // Navigate back to home page
+  router.push({ name: 'home' });
 };
 
 const loadAddressInfo = async () => {

@@ -1,20 +1,15 @@
 <template>
   <q-page class="transaction-page">
-    <div class="page-content">
-      <!-- Loading State -->
-      <div v-if="loading" class="loading-container fade-in">
-        <base-card elevated>
-          <q-card-section>
-            <q-skeleton type="text" width="40%" height="30px" class="q-mb-md" />
-            <q-skeleton type="text" width="60%" height="20px" class="q-mb-lg" />
-            <q-separator class="q-mb-lg" />
-            <q-skeleton v-for="i in 6" :key="i" type="text" height="40px" class="q-mb-sm" />
-          </q-card-section>
-        </base-card>
-      </div>
+    <!-- Loading Monster -->
+    <loading-monster
+      v-if="loading"
+      message="Fetching transaction from blockchain..."
+      @cancel="handleCancelLoading"
+    />
 
+    <div class="page-content">
       <!-- Transaction Details -->
-      <div v-else-if="transaction" class="transaction-details fade-in">
+      <div v-if="transaction" class="transaction-details fade-in">
         <!-- Header -->
         <div class="page-header">
           <q-btn
@@ -173,6 +168,85 @@
           </q-card-section>
         </base-card>
 
+        <!-- Token/NFT Transfers Card -->
+        <base-card v-if="transaction.logs && transaction.logs.length > 0" class="logs-card slide-up-soft stagger-2" bordered>
+          <q-card-section>
+            <h3 class="card-title">
+              <q-icon name="mdi-swap-horizontal" size="20px" color="primary" class="q-mr-sm" />
+              Token Transfers
+            </h3>
+
+            <q-list separator>
+              <q-item v-for="(log, index) in transaction.logs" :key="index" class="log-item">
+                <q-item-section avatar>
+                  <q-icon
+                    :name="log.type === 'ERC20_Transfer' ? 'mdi-coin' : log.type === 'ERC721_Transfer' ? 'mdi-image' : 'mdi-package-variant'"
+                    :color="log.type === 'ERC20_Transfer' ? 'primary' : log.type === 'ERC721_Transfer' ? 'secondary' : 'accent'"
+                    size="32px"
+                  />
+                </q-item-section>
+
+                <q-item-section>
+                  <q-item-label class="log-token-name">
+                    {{ log.tokenName }} ({{ log.tokenSymbol }})
+                  </q-item-label>
+                  <q-item-label caption class="log-type">
+                    {{ log.type === 'ERC20_Transfer' ? 'Token Transfer' : log.type === 'ERC721_Transfer' ? 'NFT Transfer' : 'ERC-1155 Transfer' }}
+                  </q-item-label>
+
+                  <div class="log-addresses">
+                    <div class="log-address-row">
+                      <span class="log-label">From:</span>
+                      <wallet-address-chip
+                        color="primary"
+                        :address="log.from"
+                        :is-transaction-hash="true"
+                        icon="mdi-account"
+                        clickable
+                        @click="navigateToAddress(log.from)"
+                      />
+                    </div>
+                    <div class="log-address-row">
+                      <span class="log-label">To:</span>
+                      <wallet-address-chip
+                        color="primary"
+                        :address="log.to"
+                        :is-transaction-hash="true"
+                        icon="mdi-account"
+                        clickable
+                        @click="navigateToAddress(log.to)"
+                      />
+                    </div>
+                  </div>
+
+                  <q-item-label v-if="log.value" class="log-value">
+                    <q-icon name="mdi-cash" size="16px" class="q-mr-xs" />
+                    Amount: <strong>{{ log.value }} {{ log.tokenSymbol }}</strong>
+                  </q-item-label>
+
+                  <q-item-label v-if="log.tokenId" class="log-value">
+                    <q-icon name="mdi-tag" size="16px" class="q-mr-xs" />
+                    Token ID: <strong>#{{ log.tokenId }}</strong>
+                  </q-item-label>
+
+                  <q-item-label caption class="log-contract">
+                    <q-icon name="mdi-file-code" size="14px" class="q-mr-xs" />
+                    Contract:
+                    <wallet-address-chip
+                      color="primary"
+                      :address="log.tokenAddress"
+                      :is-transaction-hash="true"
+                      icon="mdi-file-code"
+                      clickable
+                      @click="navigateToAddress(log.tokenAddress)"
+                    />
+                  </q-item-label>
+                </q-item-section>
+              </q-item>
+            </q-list>
+          </q-card-section>
+        </base-card>
+
         <!-- Input Data Card -->
         <base-card v-if="transaction.input !== '0x'" class="input-card slide-up-soft stagger-2" bordered>
           <q-card-section>
@@ -215,6 +289,7 @@ import { useChainStore } from '../stores/chain-store';
 import { useSearchStore } from '../stores/search-store';
 import BaseCard from '../components/BaseCard.vue';
 import WalletAddressChip from '../components/WalletAddressChip.vue';
+import LoadingMonster from '../components/LoadingMonster.vue';
 
 const route = useRoute();
 const router = useRouter();
@@ -227,6 +302,12 @@ const transaction = ref<Awaited<ReturnType<typeof chainStore.getTransaction>> | 
 
 const txType = computed(() => {
   if (!transaction.value) return 'Unknown';
+
+  // If transaction has logs (token/NFT transfers), it's a Contract Interaction
+  if (transaction.value.logs && transaction.value.logs.length > 0) {
+    return 'Contract Interaction';
+  }
+
   return chainStore.getTransactionType(transaction.value.input);
 });
 
@@ -244,10 +325,21 @@ const navigateToAddress = (address: string) => {
   router.push({ name: 'address', params: { address } });
 };
 
+const handleCancelLoading = () => {
+  // Navigate back to home page
+  router.push({ name: 'home' });
+};
+
 const loadTransaction = async () => {
   const hash = route.params.hash as Hash;
   try {
     transaction.value = await chainStore.getTransaction(hash);
+
+    console.log('Transaction loaded:', {
+      hash: transaction.value.hash,
+      logsCount: transaction.value.logs?.length || 0,
+      logs: transaction.value.logs
+    });
 
     // Add to recent searches
     searchStore.addSearch(hash, 'Transaction', chainStore.currentChainId);
@@ -396,6 +488,67 @@ onMounted(() => {
 
 .input-card {
   margin-bottom: 24px;
+}
+
+.logs-card {
+  margin-bottom: 24px;
+}
+
+.log-item {
+  padding: 16px 0;
+}
+
+.log-token-name {
+  font-size: 16px;
+  font-weight: 700;
+  color: #111827;
+  margin-bottom: 4px;
+}
+
+.log-type {
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #6b7280;
+  margin-bottom: 12px;
+}
+
+.log-addresses {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.log-address-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.log-label {
+  font-size: 13px;
+  font-weight: 600;
+  color: #6b7280;
+  min-width: 50px;
+}
+
+.log-value {
+  font-size: 14px;
+  color: #111827;
+  margin: 8px 0;
+  display: flex;
+  align-items: center;
+}
+
+.log-contract {
+  font-size: 12px;
+  color: #6b7280;
+  margin-top: 8px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
 }
 
 .input-data {
