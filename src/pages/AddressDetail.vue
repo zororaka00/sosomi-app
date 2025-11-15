@@ -53,6 +53,9 @@
               <span class="balance-value">{{ walletInfo.formattedBalance }}</span>
               <span class="balance-symbol">{{ currentChain?.chain.nativeCurrency.symbol }}</span>
             </div>
+            <div v-if="parseFloat(walletInfo.formattedBalance) > 0" class="balance-usd text-grey-7 q-mt-sm">
+              ≈ {{ priceStore.formatUsdValue(parseFloat(walletInfo.formattedBalance), currentChain?.chain.nativeCurrency.symbol || '') }} USD
+            </div>
           </q-card-section>
         </base-card>
 
@@ -168,6 +171,7 @@ import { type Address, isAddress as viemIsAddress } from 'viem';
 import { Notify } from 'quasar';
 import { useChainStore } from '../stores/chain-store';
 import { useSearchStore } from '../stores/search-store';
+import { usePriceStore } from '../stores/price-store';
 import BaseCard from '../components/BaseCard.vue';
 import WalletAddressChip from '../components/WalletAddressChip.vue';
 import TokenRow from '../components/TokenRow.vue';
@@ -178,6 +182,7 @@ const router = useRouter();
 
 const chainStore = useChainStore();
 const searchStore = useSearchStore();
+const priceStore = usePriceStore();
 const { currentChain, loading, error } = storeToRefs(chainStore);
 
 const walletInfo = ref<Awaited<ReturnType<typeof chainStore.getWalletInfo>> | null>(null);

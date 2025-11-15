@@ -100,6 +100,9 @@
               <div class="info-value value-amount">
                 <q-icon name="currency_exchange" size="20px" color="primary" />
                 <span>{{ transaction.formattedValue }} {{ currentChain?.chain.nativeCurrency.symbol }}</span>
+                <span v-if="transaction.value > 0n" class="text-grey-7 q-ml-sm">
+                  ({{ priceStore.formatUsdValue(parseFloat(transaction.formattedValue), currentChain?.chain.nativeCurrency.symbol || '') }} USD)
+                </span>
               </div>
             </div>
 
@@ -152,7 +155,10 @@
               <div class="info-value">
                 {{ transaction.gasUsed.toString() }}&nbsp;
                 <span v-if="transactionCost" class="text-grey-6">
-                  ({{ transactionCost.formattedCost }} {{ currentChain?.chain.nativeCurrency.symbol }})
+                  ({{ transactionCost.formattedCost }} {{ currentChain?.chain.nativeCurrency.symbol }}
+                  <span v-if="transactionCost.cost > 0">
+                    ≈ {{ priceStore.formatUsdValue(parseFloat(transactionCost.formattedCost), currentChain?.chain.nativeCurrency.symbol || '') }} USD
+                  </span>)
                 </span>
               </div>
             </div>
@@ -287,6 +293,7 @@ import { storeToRefs } from 'pinia';
 import type { Hash } from 'viem';
 import { useChainStore } from '../stores/chain-store';
 import { useSearchStore } from '../stores/search-store';
+import { usePriceStore } from '../stores/price-store';
 import BaseCard from '../components/BaseCard.vue';
 import WalletAddressChip from '../components/WalletAddressChip.vue';
 import LoadingMonster from '../components/LoadingMonster.vue';
@@ -296,6 +303,7 @@ const router = useRouter();
 
 const chainStore = useChainStore();
 const searchStore = useSearchStore();
+const priceStore = usePriceStore();
 const { currentChain, loading, error } = storeToRefs(chainStore);
 
 const transaction = ref<Awaited<ReturnType<typeof chainStore.getTransaction>> | null>(null);
