@@ -96,22 +96,34 @@
             </div>            <q-separator class="info-separator" />
 
             <div class="info-row">
-              <div class="info-label">Value</div>
-              <div class="info-value value-amount">
-                <q-icon name="currency_exchange" size="20px" color="primary" />
-                <span>{{ transaction.formattedValue }} {{ currentChain?.chain.nativeCurrency.symbol }}</span>
-                <span v-if="transaction.value > 0n" class="text-grey-7 q-ml-sm">
-                  ({{ priceStore.formatUsdValue(parseFloat(transaction.formattedValue), currentChain?.chain.nativeCurrency.symbol || '') }} USD)
-                </span>
+              <div class="info-label">Transaction Type</div>
+              <div class="info-value">
+                <q-badge color="primary" :label="txType" />
               </div>
             </div>
 
             <q-separator class="info-separator" />
 
             <div class="info-row">
-              <div class="info-label">Transaction Type</div>
+              <div class="info-label">Value</div>
+              <div class="info-value value-amount">
+                <q-icon name="currency_exchange" size="20px" color="primary" />
+                <span>{{ transaction.formattedValue }} {{ currentChain?.chain.nativeCurrency.symbol }}</span>
+              </div>
+              <div v-if="transaction.value > 0n" class="info-usd text-grey-7">
+                ({{ priceStore.formatUsdValue(parseFloat(transaction.formattedValue), currentChain?.chain.nativeCurrency.symbol || '') }} USD)
+              </div>
+            </div>
+
+            <q-separator class="info-separator" />
+
+            <div v-if="transactionCost" class="info-row">
+              <div class="info-label">Transaction Fee</div>
               <div class="info-value">
-                <q-badge color="primary" :label="txType" />
+                {{ transactionCost.formattedCost }} {{ currentChain?.chain.nativeCurrency.symbol }}
+              </div>
+              <div v-if="transactionCost.cost > 0" class="info-usd text-grey-7">
+                ({{ priceStore.formatUsdValue(parseFloat(transactionCost.formattedCost), currentChain?.chain.nativeCurrency.symbol || '') }} USD)
               </div>
             </div>
 
@@ -152,14 +164,8 @@
 
             <div v-if="transaction.gasUsed" class="info-row">
               <div class="info-label">Gas Used</div>
-              <div class="info-value">
-                {{ transaction.gasUsed.toString() }}&nbsp;
-                <span v-if="transactionCost" class="text-grey-6">
-                  ({{ transactionCost.formattedCost }} {{ currentChain?.chain.nativeCurrency.symbol }}
-                  <span v-if="transactionCost.cost > 0">
-                    ≈ {{ priceStore.formatUsdValue(parseFloat(transactionCost.formattedCost), currentChain?.chain.nativeCurrency.symbol || '') }} USD
-                  </span>)
-                </span>
+              <div class="info-value mono-text">
+                {{ transaction.gasUsed.toString() }}
               </div>
             </div>
 
@@ -444,9 +450,8 @@ onMounted(() => {
 
 .info-row {
   display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 24px;
+  flex-direction: column;
+  gap: 4px;
   padding: 16px 0;
 }
 
@@ -454,26 +459,23 @@ onMounted(() => {
   font-size: 14px;
   font-weight: 600;
   color: #6b7280;
-  flex-shrink: 0;
-  min-width: 140px;
 }
 
 .info-value {
   font-size: 14px;
   color: #111827;
-  text-align: right;
-  flex: 1;
-  min-width: 0;
-  max-width: 100%;
-  overflow: hidden;
   display: flex;
-  justify-content: flex-end;
+  align-items: center;
+}
+
+.info-usd {
+  font-size: 13px;
+  margin-top: 4px;
 }
 
 .value-amount {
   display: flex;
   align-items: center;
-  justify-content: flex-end;
   gap: 8px;
   font-weight: 600;
   font-size: 16px;
