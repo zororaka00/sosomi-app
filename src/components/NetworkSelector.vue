@@ -66,10 +66,10 @@ const getChainDescription = (chainId: string): string => {
   const descriptions: Record<string, string> = {
     ethereum: 'Mainnet',
     bnb: 'Mainnet',
-    base: 'Layer 2',
-    arbitrum: 'Layer 2',
-    optimism: 'Layer 2',
-    polygon: 'Layer 2'
+    base: 'Mainnet',
+    arbitrum: 'Mainnet',
+    optimism: 'Mainnet',
+    polygon: 'Mainnet'
   };
   return descriptions[chainId] || '';
 };

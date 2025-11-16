@@ -9,19 +9,18 @@
         Oops. Nothing here...
       </div>
 
-      <q-btn
-        class="q-mt-xl"
-        color="white"
-        text-color="blue"
-        unelevated
-        to="/"
+      <pill-button
         label="Go Home"
-        no-caps
+        icon="mdi-home"
+        bg-color="#ffffff"
+        text-color="#1976d2"
+        class="q-mt-xl"
+        @click="$router.push('/')"
       />
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-//
+import PillButton from '../components/PillButton.vue';
 </script>

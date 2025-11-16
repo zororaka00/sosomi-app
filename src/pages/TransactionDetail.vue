@@ -96,19 +96,34 @@
             </div>            <q-separator class="info-separator" />
 
             <div class="info-row">
-              <div class="info-label">Value</div>
-              <div class="info-value value-amount">
-                <q-icon name="currency_exchange" size="20px" color="primary" />
-                <span>{{ transaction.formattedValue }} {{ currentChain?.chain.nativeCurrency.symbol }}</span>
+              <div class="info-label">Transaction Type</div>
+              <div class="info-value">
+                <q-badge color="primary" :label="txType" />
               </div>
             </div>
 
             <q-separator class="info-separator" />
 
             <div class="info-row">
-              <div class="info-label">Transaction Type</div>
+              <div class="info-label">Value</div>
+              <div class="info-value value-amount">
+                <q-icon name="currency_exchange" size="20px" color="primary" />
+                <span>{{ transaction.formattedValue }} {{ currentChain?.chain.nativeCurrency.symbol }}</span>
+              </div>
+              <div v-if="transaction.value > 0n" class="info-usd text-grey-7">
+                ≈ {{ priceStore.formatUsdValue(parseFloat(transaction.formattedValue), currentChain?.chain.nativeCurrency.symbol || '') }} USD
+              </div>
+            </div>
+
+            <q-separator class="info-separator" />
+
+            <div v-if="transactionCost" class="info-row">
+              <div class="info-label">Transaction Fee</div>
               <div class="info-value">
-                <q-badge color="primary" :label="txType" />
+                {{ transactionCost.formattedCost }} {{ currentChain?.chain.nativeCurrency.symbol }}
+              </div>
+              <div v-if="transactionCost.cost > 0" class="info-usd text-grey-7">
+                ≈ {{ priceStore.formatUsdValue(parseFloat(transactionCost.formattedCost), currentChain?.chain.nativeCurrency.symbol || '') }} USD
               </div>
             </div>
 
@@ -149,11 +164,8 @@
 
             <div v-if="transaction.gasUsed" class="info-row">
               <div class="info-label">Gas Used</div>
-              <div class="info-value">
-                {{ transaction.gasUsed.toString() }}&nbsp;
-                <span v-if="transactionCost" class="text-grey-6">
-                  ({{ transactionCost.formattedCost }} {{ currentChain?.chain.nativeCurrency.symbol }})
-                </span>
+              <div class="info-value mono-text">
+                {{ transaction.gasUsed.toString() }}
               </div>
             </div>
 
@@ -178,14 +190,6 @@
 
             <q-list separator>
               <q-item v-for="(log, index) in transaction.logs" :key="index" class="log-item">
-                <q-item-section avatar>
-                  <q-icon
-                    :name="log.type === 'ERC20_Transfer' ? 'mdi-coin' : log.type === 'ERC721_Transfer' ? 'mdi-image' : 'mdi-package-variant'"
-                    :color="log.type === 'ERC20_Transfer' ? 'primary' : log.type === 'ERC721_Transfer' ? 'secondary' : 'accent'"
-                    size="32px"
-                  />
-                </q-item-section>
-
                 <q-item-section>
                   <q-item-label class="log-token-name">
                     {{ log.tokenName }} ({{ log.tokenSymbol }})
@@ -221,12 +225,12 @@
 
                   <q-item-label v-if="log.value" class="log-value">
                     <q-icon name="mdi-cash" size="16px" class="q-mr-xs" />
-                    Amount: <strong>{{ log.value }} {{ log.tokenSymbol }}</strong>
+                    Amount:&nbsp;<strong>{{ log.value }} {{ log.tokenSymbol }}</strong>
                   </q-item-label>
 
                   <q-item-label v-if="log.tokenId" class="log-value">
                     <q-icon name="mdi-tag" size="16px" class="q-mr-xs" />
-                    Token ID: <strong>#{{ log.tokenId }}</strong>
+                    Token ID:&nbsp;<strong>#{{ log.tokenId }}</strong>
                   </q-item-label>
 
                   <q-item-label caption class="log-contract">
@@ -265,12 +269,11 @@
             <q-icon name="mdi-alert-circle" size="64px" color="negative" class="q-mb-md" />
             <h3 class="text-h6 q-mb-sm">Transaction Not Found</h3>
             <!-- <p class="text-grey-7 q-mb-lg">{{ error }}</p> -->
-            <q-btn
-              unelevated
-              rounded
-              color="primary"
+            <pill-button
               label="Go Back"
               icon="mdi-arrow-left"
+              bg-color="#3b82f6"
+              text-color="#ffffff"
               @click="$router.back()"
             />
           </q-card-section>
@@ -287,15 +290,18 @@ import { storeToRefs } from 'pinia';
 import type { Hash } from 'viem';
 import { useChainStore } from '../stores/chain-store';
 import { useSearchStore } from '../stores/search-store';
+import { usePriceStore } from '../stores/price-store';
 import BaseCard from '../components/BaseCard.vue';
 import WalletAddressChip from '../components/WalletAddressChip.vue';
 import LoadingMonster from '../components/LoadingMonster.vue';
+import PillButton from '../components/PillButton.vue';
 
 const route = useRoute();
 const router = useRouter();
 
 const chainStore = useChainStore();
 const searchStore = useSearchStore();
+const priceStore = usePriceStore();
 const { currentChain, loading, error } = storeToRefs(chainStore);
 
 const transaction = ref<Awaited<ReturnType<typeof chainStore.getTransaction>> | null>(null);
@@ -436,9 +442,8 @@ onMounted(() => {
 
 .info-row {
   display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 24px;
+  flex-direction: column;
+  gap: 4px;
   padding: 16px 0;
 }
 
@@ -446,26 +451,23 @@ onMounted(() => {
   font-size: 14px;
   font-weight: 600;
   color: #6b7280;
-  flex-shrink: 0;
-  min-width: 140px;
 }
 
 .info-value {
   font-size: 14px;
   color: #111827;
-  text-align: right;
-  flex: 1;
-  min-width: 0;
-  max-width: 100%;
-  overflow: hidden;
   display: flex;
-  justify-content: flex-end;
+  align-items: center;
+}
+
+.info-usd {
+  font-size: 13px;
+  margin-top: 4px;
 }
 
 .value-amount {
   display: flex;
   align-items: center;
-  justify-content: flex-end;
   gap: 8px;
   font-weight: 600;
   font-size: 16px;
