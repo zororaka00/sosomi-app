@@ -112,27 +112,21 @@
             </div>
 
             <div class="add-token-form">
-              <q-input
+              <pill-input
                 v-model="customTokenAddress"
-                outlined
                 placeholder="Enter token contract address"
-                label="Token Address"
-                :rules="[val => !val || isValidAddress(val) || 'Invalid address']"
-              >
-                <template v-slot:prepend>
-                  <q-icon name="mdi-coin" />
-                </template>
-              </q-input>
+                prepend-icon="mdi-coin"
+                bg-color="#fafafa"
+                text-color="#111827"
+                :rules="[(val: string | number) => !val || isValidAddress(val.toString()) || 'Invalid address']"
+              />
 
-              <q-btn
-                unelevated
-                rounded
-                color="primary"
+              <pill-button
                 label="Add Token"
-                icon-right="mdi-plus"
-                no-caps
-                :loading="addingToken"
-                :disable="!customTokenAddress || !isValidAddress(customTokenAddress)"
+                icon="mdi-plus"
+                bg-color="#3b82f6"
+                text-color="#ffffff"
+                :disabled="!customTokenAddress || !isValidAddress(customTokenAddress) || addingToken"
                 @click="addCustomToken"
                 class="add-token-btn"
               />
@@ -148,12 +142,11 @@
             <q-icon name="mdi-alert-circle" size="64px" color="negative" class="q-mb-md" />
             <h3 class="text-h6 q-mb-sm">Address Not Found</h3>
             <p class="text-grey-7 q-mb-lg">{{ error }}</p>
-            <q-btn
-              unelevated
-              rounded
-              color="primary"
+            <pill-button
               label="Go Back"
               icon="mdi-arrow-left"
+              bg-color="#3b82f6"
+              text-color="#ffffff"
               @click="$router.back()"
             />
           </q-card-section>
@@ -176,6 +169,8 @@ import BaseCard from '../components/BaseCard.vue';
 import WalletAddressChip from '../components/WalletAddressChip.vue';
 import TokenRow from '../components/TokenRow.vue';
 import LoadingMonster from '../components/LoadingMonster.vue';
+import PillButton from '../components/PillButton.vue';
+import PillInput from '../components/PillInput.vue';
 
 const route = useRoute();
 const router = useRouter();

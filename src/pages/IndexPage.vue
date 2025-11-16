@@ -12,17 +12,15 @@
       <!-- Search Card -->
       <base-card class="search-card" elevated>
         <q-card-section class="search-card__content">
-          <q-input
+          <pill-input
             v-model="searchQuery"
-            outlined
             placeholder="Enter tx hash or address"
+            prepend-icon="mdi-magnify"
+            bg-color="#fafafa"
+            text-color="#111827"
             class="search-input"
             @keyup.enter="handleSearch"
           >
-            <template v-slot:prepend>
-              <q-icon name="mdi-magnify" color="grey-6" />
-            </template>
-
             <template v-slot:append>
               <q-btn
                 v-if="searchQuery"
@@ -34,19 +32,16 @@
                 color="grey-6"
               />
             </template>
-          </q-input>
+          </pill-input>
 
-          <q-btn
-            unelevated
-            rounded
-            color="primary"
+          <pill-button
             label="Search"
-            icon-right="mdi-magnify"
-            no-caps
-            class="search-btn scale-on-press"
-            :loading="searching"
-            :disable="!searchQuery"
+            icon="mdi-magnify"
+            bg-color="#3b82f6"
+            text-color="#ffffff"
+            :disabled="!searchQuery || searching"
             @click="handleSearch"
+            class="search-btn"
           />
         </q-card-section>
       </base-card>
@@ -108,6 +103,8 @@ import { isAddress, isHash } from 'viem';
 import { Notify } from 'quasar';
 import { storeToRefs } from 'pinia';
 import BaseCard from '../components/BaseCard.vue';
+import PillButton from '../components/PillButton.vue';
+import PillInput from '../components/PillInput.vue';
 import { useSearchStore } from '../stores/search-store';
 import { useChainStore } from '../stores/chain-store';
 
