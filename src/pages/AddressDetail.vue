@@ -141,7 +141,7 @@
           <q-card-section class="text-center">
             <q-icon name="mdi-alert-circle" size="64px" color="negative" class="q-mb-md" />
             <h3 class="text-h6 q-mb-sm">Address Not Found</h3>
-            <p class="text-grey-7 q-mb-lg">{{ error }}</p>
+            <!-- <p class="text-grey-7 q-mb-lg">{{ error }}</p> -->
             <pill-button
               label="Go Back"
               icon="mdi-arrow-left"
@@ -197,13 +197,14 @@ const loadAddressInfo = async () => {
   const address = route.params.address as Address;
 
   try {
-    // Add to recent searches
-    searchStore.addSearch(address, 'Address', chainStore.currentChainId);
-
     // Load wallet info (balance + tokens if any)
     walletInfo.value = await chainStore.getWalletInfo(address);
+
+    // Only add to recent searches if successfully loaded
+    searchStore.addSearch(address, 'Address', chainStore.currentChainId);
   } catch (err) {
     console.error('Failed to load address info:', err);
+    // Don't add to recent searches on error
   }
 };
 

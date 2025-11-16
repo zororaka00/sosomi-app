@@ -107,10 +107,12 @@ import PillButton from '../components/PillButton.vue';
 import PillInput from '../components/PillInput.vue';
 import { useSearchStore } from '../stores/search-store';
 import { useChainStore } from '../stores/chain-store';
+import { useBitcoinStore } from '../stores/bitcoin-store';
 
 const router = useRouter();
 const searchStore = useSearchStore();
 const chainStore = useChainStore();
+const bitcoinStore = useBitcoinStore();
 
 const searchQuery = ref('');
 const searching = ref(false);
@@ -141,7 +143,18 @@ const handleSearch = async () => {
   searching.value = true;
 
   try {
-    // Determine search type
+    // Check if it's a Bitcoin address or txid
+    if (bitcoinStore.isValidBitcoinAddress(query)) {
+      // It's a Bitcoin address
+      await router.push({ name: 'bitcoin-address', params: { address: query } });
+      return;
+    } else if (bitcoinStore.isValidBitcoinTxid(query)) {
+      // It's a Bitcoin transaction
+      await router.push({ name: 'bitcoin-transaction', params: { txid: query } });
+      return;
+    }
+
+    // Determine search type for EVM chains
     if (isHash(query)) {
       // It's a transaction hash
       await router.push({ name: 'transaction', params: { hash: query } });

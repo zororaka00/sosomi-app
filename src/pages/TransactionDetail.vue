@@ -347,10 +347,11 @@ const loadTransaction = async () => {
       logs: transaction.value.logs
     });
 
-    // Add to recent searches
+    // Only add to recent searches if successfully loaded
     searchStore.addSearch(hash, 'Transaction', chainStore.currentChainId);
   } catch (err) {
     console.error('Failed to load transaction:', err);
+    // Don't add to recent searches on error
   }
 };
 

@@ -19,6 +19,7 @@ import {
 import { mainnet, polygon, arbitrum, optimism, base, bsc } from 'viem/chains';
 
 // Import SVG assets
+import bitcoinIcon from '../assets/bitcoin.svg';
 import ethereumIcon from '../assets/ethereum.svg';
 import bnbIcon from '../assets/bnb.svg';
 import baseIcon from '../assets/base.svg';
@@ -122,6 +123,19 @@ const ERC20_ABI = [
 
 // Supported chains configuration with multiple RPC URLs (Mainnet only)
 export const SUPPORTED_CHAINS: Record<string, ChainConfig> = {
+  bitcoin: {
+    chain: {
+      id: 0, // Bitcoin doesn't have chainId like EVM
+      name: 'Bitcoin',
+      nativeCurrency: { name: 'Bitcoin', symbol: 'BTC', decimals: 8 },
+      rpcUrls: { default: { http: ['https://blockstream.info/api'] } },
+      blockExplorers: { default: { name: 'Blockstream', url: 'https://blockstream.info' } }
+    } as any,
+    rpcUrls: ['https://blockstream.info/api'],
+    name: 'Bitcoin',
+    icon: 'mdi-bitcoin',
+    iconUrl: bitcoinIcon
+  },
   ethereum: {
     chain: mainnet,
     rpcUrls: [
@@ -207,7 +221,7 @@ export const useChainStore = defineStore('chain', () => {
   const savedChainId = LocalStorage.getItem('currentChainId') as string | null;
 
   // State
-  const currentChainId = ref<string>(savedChainId && SUPPORTED_CHAINS[savedChainId] ? savedChainId : 'ethereum');
+  const currentChainId = ref<string>(savedChainId && SUPPORTED_CHAINS[savedChainId] ? savedChainId : 'bitcoin');
   const clients = new Map<string, PublicClient>();
   const loading = ref(false);
 
