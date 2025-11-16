@@ -3,7 +3,7 @@
     <!-- Loading Monster -->
     <loading-monster
       v-if="loading"
-      message="Fetching transaction from blockchain..."
+      message="Fetching transaction data..."
       @cancel="handleCancelLoading"
     />
 
@@ -347,10 +347,11 @@ const loadTransaction = async () => {
       logs: transaction.value.logs
     });
 
-    // Add to recent searches
+    // Only add to recent searches if successfully loaded
     searchStore.addSearch(hash, 'Transaction', chainStore.currentChainId);
   } catch (err) {
     console.error('Failed to load transaction:', err);
+    // Don't add to recent searches on error
   }
 };
 

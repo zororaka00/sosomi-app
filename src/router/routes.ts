@@ -19,6 +19,16 @@ const routes: RouteRecordRaw[] = [
         path: 'address/:address',
         name: 'address',
         component: () => import('pages/AddressDetail.vue')
+      },
+      {
+        path: 'btc/tx/:txid',
+        name: 'bitcoin-transaction',
+        component: () => import('pages/BitcoinTransactionDetail.vue')
+      },
+      {
+        path: 'btc/address/:address',
+        name: 'bitcoin-address',
+        component: () => import('pages/BitcoinAddressDetail.vue')
       }
     ],
   },

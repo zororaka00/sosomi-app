@@ -3,7 +3,7 @@
     <!-- Loading Monster -->
     <loading-monster
       v-if="loading"
-      message="Loading address data..."
+      message="Fetching address data..."
       @cancel="handleCancelLoading"
     />
 
@@ -36,8 +36,18 @@
               />
               <div class="address-info">
                 <div class="address-label">Address</div>
-                <wallet-address-chip color="primary" :address="walletInfo.address" :is-transaction-hash="true" />
+                <wallet-address-chip color="primary" :address="walletInfo.address" :is-transaction-hash="false" :truncate="true" />
               </div>
+              <q-btn
+                flat
+                round
+                icon="mdi-qrcode"
+                size="md"
+                color="primary"
+                @click="showQrCode"
+              >
+                <q-tooltip>Show QR</q-tooltip>
+              </q-btn>
             </div>
           </q-card-section>
         </base-card>
@@ -141,7 +151,7 @@
           <q-card-section class="text-center">
             <q-icon name="mdi-alert-circle" size="64px" color="negative" class="q-mb-md" />
             <h3 class="text-h6 q-mb-sm">Address Not Found</h3>
-            <p class="text-grey-7 q-mb-lg">{{ error }}</p>
+            <!-- <p class="text-grey-7 q-mb-lg">{{ error }}</p> -->
             <pill-button
               label="Go Back"
               icon="mdi-arrow-left"
@@ -153,11 +163,20 @@
         </base-card>
       </div>
     </div>
+
+    <!-- QR Code Dialog -->
+    <qr-code-dialog
+      v-if="walletInfo && currentChain"
+      v-model="showQrDialog"
+      :address="walletInfo.address"
+      :chain-name="currentChain.name"
+      :chain-logo="currentChain.iconUrl"
+    />
   </q-page>
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, computed } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { storeToRefs } from 'pinia';
 import { type Address, isAddress as viemIsAddress } from 'viem';
@@ -171,6 +190,7 @@ import TokenRow from '../components/TokenRow.vue';
 import LoadingMonster from '../components/LoadingMonster.vue';
 import PillButton from '../components/PillButton.vue';
 import PillInput from '../components/PillInput.vue';
+import QrCodeDialog from '../components/QrCodeDialog.vue';
 
 const route = useRoute();
 const router = useRouter();
@@ -178,11 +198,14 @@ const router = useRouter();
 const chainStore = useChainStore();
 const searchStore = useSearchStore();
 const priceStore = usePriceStore();
-const { currentChain, loading, error } = storeToRefs(chainStore);
+const { loading, error } = storeToRefs(chainStore);
+
+const currentChain = computed(() => chainStore.currentChain);
 
 const walletInfo = ref<Awaited<ReturnType<typeof chainStore.getWalletInfo>> | null>(null);
 const customTokenAddress = ref('');
 const addingToken = ref(false);
+const showQrDialog = ref(false);
 
 const isValidAddress = (addr: string): boolean => {
   return viemIsAddress(addr);
@@ -193,17 +216,23 @@ const handleCancelLoading = () => {
   router.push({ name: 'home' });
 };
 
+const showQrCode = () => {
+  if (!walletInfo.value) return;
+  showQrDialog.value = true;
+};
+
 const loadAddressInfo = async () => {
   const address = route.params.address as Address;
 
   try {
-    // Add to recent searches
-    searchStore.addSearch(address, 'Address', chainStore.currentChainId);
-
     // Load wallet info (balance + tokens if any)
     walletInfo.value = await chainStore.getWalletInfo(address);
+
+    // Only add to recent searches if successfully loaded
+    searchStore.addSearch(address, 'Address', chainStore.currentChainId);
   } catch (err) {
     console.error('Failed to load address info:', err);
+    // Don't add to recent searches on error
   }
 };
 
@@ -428,11 +457,6 @@ onMounted(() => {
 
   .page-title {
     font-size: 24px;
-  }
-
-  .address-header {
-    flex-direction: column;
-    align-items: flex-start;
   }
 
   .balance-value {

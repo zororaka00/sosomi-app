@@ -67,12 +67,17 @@ const fullAddress = computed(() => props.address);
 const displayAddress = computed(() => {
   const addr = props.address;
 
-  // Transaction hash selalu dipotong
-  if (props.isTransactionHash) {
-    return `${addr.slice(0, 6)}xxxx${addr.slice(-4)}`;
+  // If truncate enabled, always truncate to 4-4
+  if (props.truncate) {
+    return `${addr.slice(0, 4)}...${addr.slice(-4)}`;
   }
 
-  // Address (from/to) tidak dipotong
+  // Transaction hash truncated to 6-4
+  if (props.isTransactionHash) {
+    return `${addr.slice(0, 6)}...${addr.slice(-4)}`;
+  }
+
+  // Address (from/to) not truncated by default
   return addr;
 });
 
