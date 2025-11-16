@@ -190,14 +190,6 @@
 
             <q-list separator>
               <q-item v-for="(log, index) in transaction.logs" :key="index" class="log-item">
-                <q-item-section avatar>
-                  <q-icon
-                    :name="log.type === 'ERC20_Transfer' ? 'mdi-coin' : log.type === 'ERC721_Transfer' ? 'mdi-image' : 'mdi-package-variant'"
-                    :color="log.type === 'ERC20_Transfer' ? 'primary' : log.type === 'ERC721_Transfer' ? 'secondary' : 'accent'"
-                    size="32px"
-                  />
-                </q-item-section>
-
                 <q-item-section>
                   <q-item-label class="log-token-name">
                     {{ log.tokenName }} ({{ log.tokenSymbol }})
