@@ -64,6 +64,7 @@ const currentChainLabel = computed(() => currentChain.value?.name || 'Select Net
 
 const getChainDescription = (chainId: string): string => {
   const descriptions: Record<string, string> = {
+    bitcoin: 'Mainnet',
     ethereum: 'Mainnet',
     bnb: 'Mainnet',
     base: 'Mainnet',

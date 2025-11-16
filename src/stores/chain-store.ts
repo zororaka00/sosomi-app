@@ -19,6 +19,7 @@ import {
 import { mainnet, polygon, arbitrum, optimism, base, bsc } from 'viem/chains';
 
 // Import SVG assets
+import bitcoinIcon from '../assets/bitcoin.svg';
 import ethereumIcon from '../assets/ethereum.svg';
 import bnbIcon from '../assets/bnb.svg';
 import baseIcon from '../assets/base.svg';
@@ -122,6 +123,19 @@ const ERC20_ABI = [
 
 // Supported chains configuration with multiple RPC URLs (Mainnet only)
 export const SUPPORTED_CHAINS: Record<string, ChainConfig> = {
+  bitcoin: {
+    chain: {
+      id: 0, // Bitcoin doesn't have chainId like EVM
+      name: 'Bitcoin',
+      nativeCurrency: { name: 'Bitcoin', symbol: 'BTC', decimals: 8 },
+      rpcUrls: { default: { http: ['https://mempool.space/api'] } },
+      blockExplorers: { default: { name: 'Mempool', url: 'https://mempool.space' } }
+    } as any,
+    rpcUrls: ['https://mempool.space/api'],
+    name: 'Bitcoin',
+    icon: 'mdi-bitcoin',
+    iconUrl: bitcoinIcon
+  },
   ethereum: {
     chain: mainnet,
     rpcUrls: [
@@ -207,7 +221,7 @@ export const useChainStore = defineStore('chain', () => {
   const savedChainId = LocalStorage.getItem('currentChainId') as string | null;
 
   // State
-  const currentChainId = ref<string>(savedChainId && SUPPORTED_CHAINS[savedChainId] ? savedChainId : 'ethereum');
+  const currentChainId = ref<string>(savedChainId && SUPPORTED_CHAINS[savedChainId] ? savedChainId : 'bitcoin');
   const clients = new Map<string, PublicClient>();
   const loading = ref(false);
 
@@ -327,6 +341,23 @@ export const useChainStore = defineStore('chain', () => {
     if (!SUPPORTED_CHAINS[chainId]) {
       throw new Error(`Unsupported chain: ${chainId}`);
     }
+
+    // Check if we need to redirect to home
+    // Only redirect if we're on address-detail or transaction-detail pages
+    if (typeof window !== 'undefined') {
+      const currentPath = window.location.hash || window.location.pathname;
+      const shouldRedirect =
+        currentPath.includes('/address/') ||
+        currentPath.includes('/transaction/') ||
+        currentPath.includes('/bitcoin/address/') ||
+        currentPath.includes('/bitcoin/transaction/');
+
+      if (shouldRedirect) {
+        // Redirect to home using hash navigation
+        window.location.hash = '#/';
+      }
+    }
+
     currentChainId.value = chainId;
   }
 
