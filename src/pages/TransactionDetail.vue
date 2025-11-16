@@ -111,7 +111,7 @@
                 <span>{{ transaction.formattedValue }} {{ currentChain?.chain.nativeCurrency.symbol }}</span>
               </div>
               <div v-if="transaction.value > 0n" class="info-usd text-grey-7">
-                ({{ priceStore.formatUsdValue(parseFloat(transaction.formattedValue), currentChain?.chain.nativeCurrency.symbol || '') }} USD)
+                ≈ {{ priceStore.formatUsdValue(parseFloat(transaction.formattedValue), currentChain?.chain.nativeCurrency.symbol || '') }} USD
               </div>
             </div>
 
@@ -123,7 +123,7 @@
                 {{ transactionCost.formattedCost }} {{ currentChain?.chain.nativeCurrency.symbol }}
               </div>
               <div v-if="transactionCost.cost > 0" class="info-usd text-grey-7">
-                ({{ priceStore.formatUsdValue(parseFloat(transactionCost.formattedCost), currentChain?.chain.nativeCurrency.symbol || '') }} USD)
+                ≈ {{ priceStore.formatUsdValue(parseFloat(transactionCost.formattedCost), currentChain?.chain.nativeCurrency.symbol || '') }} USD
               </div>
             </div>
 
@@ -225,12 +225,12 @@
 
                   <q-item-label v-if="log.value" class="log-value">
                     <q-icon name="mdi-cash" size="16px" class="q-mr-xs" />
-                    Amount: <strong>{{ log.value }} {{ log.tokenSymbol }}</strong>
+                    Amount:&nbsp;<strong>{{ log.value }} {{ log.tokenSymbol }}</strong>
                   </q-item-label>
 
                   <q-item-label v-if="log.tokenId" class="log-value">
                     <q-icon name="mdi-tag" size="16px" class="q-mr-xs" />
-                    Token ID: <strong>#{{ log.tokenId }}</strong>
+                    Token ID:&nbsp;<strong>#{{ log.tokenId }}</strong>
                   </q-item-label>
 
                   <q-item-label caption class="log-contract">
@@ -269,12 +269,11 @@
             <q-icon name="mdi-alert-circle" size="64px" color="negative" class="q-mb-md" />
             <h3 class="text-h6 q-mb-sm">Transaction Not Found</h3>
             <!-- <p class="text-grey-7 q-mb-lg">{{ error }}</p> -->
-            <q-btn
-              unelevated
-              rounded
-              color="primary"
+            <pill-button
               label="Go Back"
               icon="mdi-arrow-left"
+              bg-color="#3b82f6"
+              text-color="#ffffff"
               @click="$router.back()"
             />
           </q-card-section>
@@ -295,6 +294,7 @@ import { usePriceStore } from '../stores/price-store';
 import BaseCard from '../components/BaseCard.vue';
 import WalletAddressChip from '../components/WalletAddressChip.vue';
 import LoadingMonster from '../components/LoadingMonster.vue';
+import PillButton from '../components/PillButton.vue';
 
 const route = useRoute();
 const router = useRouter();
