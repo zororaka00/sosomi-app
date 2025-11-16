@@ -1,6 +1,6 @@
 Signature-Version: 1.0
 Created-By: Signflinger
-SHA-256-Digest-Manifest: HwuwcnfyB93O4Sn7DsIoRJOq3kGODqQCy9clX5JaawE=
+SHA-256-Digest-Manifest: NZqZEI6Y619pjL1MtuDd9i3b4tl7fZ+kQxSOA0OvBZY=
 
 Name: BUNDLE-METADATA/com.android.tools.build.gradle/app-metadata.prop
  erties
@@ -31,20 +31,32 @@ SHA-256-Digest: 6M8ZldAn8v6iP2WcTYE52gsx1Jd3wd4DjOZILsqbmVs=
 Name: base/assets/native-bridge.js
 SHA-256-Digest: dM3y4Qex4m4aoEBYdCUyLEcPZufJdQ9Pd+oxYMZh91s=
 
-Name: base/assets/public/assets/AddressDetail-C7CcR9nV.css
-SHA-256-Digest: o5AqtTxAgCkgSsECOTUTCyTVGDvqSNKtoMjGhcri8NM=
+Name: base/assets/public/assets/AddressDetail-jZdNhDpi.js
+SHA-256-Digest: a9ym9djM0V1YOFyvFGGvfgLiZAuaaBZiWjScn/Z5UGk=
 
-Name: base/assets/public/assets/AddressDetail-eb4tzpIZ.js
-SHA-256-Digest: DaowBEU8GuX+uTUpcX13qJHsDaraznXPOpcM/fVKcf8=
+Name: base/assets/public/assets/AddressDetail-sqDbyMzF.css
+SHA-256-Digest: OSH5ZDZRunhCjb3+9938iUwzDsGiuvxm5zfowIUJcyw=
 
-Name: base/assets/public/assets/ErrorNotFound-CLKP7J-P.js
-SHA-256-Digest: tsCZtStR5DBIxR0CWz1+tbuxe5p0pJ+8L+XdDlArESw=
+Name: base/assets/public/assets/BitcoinAddressDetail-CsNltl9O.js
+SHA-256-Digest: coGAdOJfSlQBAAWZT3fwUoHaqpjSTEAohaQFp2PxRJk=
 
-Name: base/assets/public/assets/IndexPage-BbtFNiO9.js
-SHA-256-Digest: 84l2s+3W8+TECLpV+IIITgYeGDejllQ65Vx2SQ2DDtQ=
+Name: base/assets/public/assets/BitcoinAddressDetail-DMv_jB7L.css
+SHA-256-Digest: czl0JVZHIzr3LDq0ULQMEQiHbh2jmTw32ToRn/X/Bz0=
 
-Name: base/assets/public/assets/IndexPage-KGARfwE1.css
-SHA-256-Digest: kwR08CfJ50uD9Ss2dPi2dtB1h8wGGikHKN5AKYOo3kE=
+Name: base/assets/public/assets/BitcoinTransactionDetail-Y-Eeq4Ry.js
+SHA-256-Digest: vWhZ0k8yRgAm8a/C/xWSamvr6s8kuw0hdZFs9kywccQ=
+
+Name: base/assets/public/assets/BitcoinTransactionDetail-m1u8ktuk.css
+SHA-256-Digest: cTAMtAqhB/qd45wkZGDCGLAkvltRB5F8txa5+ozmUIo=
+
+Name: base/assets/public/assets/ErrorNotFound-C_V3wpJZ.js
+SHA-256-Digest: RfIk2jExudmrMN8ZlskyKK7ZG42RVta5iG+0cGfI0zQ=
+
+Name: base/assets/public/assets/IndexPage-B8sqaZjm.js
+SHA-256-Digest: mdNHi5UhopfQGXy6/XMhg+SchmztIJKEmkgZ5h4jVJ4=
+
+Name: base/assets/public/assets/IndexPage-Bu2-EeKf.css
+SHA-256-Digest: 5sm9L7Qc2r8VceKwRblo0/tnvA048hRJG5lcQZrQ6n8=
 
 Name: base/assets/public/assets/KFOMCnqEu92Fr1ME7kSn66aGLdTylUAMQXC89Y
  mC2DPNWuYjalmUiAw-BepdiOnY.woff
@@ -70,38 +82,48 @@ Name: base/assets/public/assets/KFOMCnqEu92Fr1ME7kSn66aGLdTylUAMQXC89Y
  mC2DPNWubEbVmUiAw-3fZ6d7DD.woff
 SHA-256-Digest: BaHx2ROk/yVXrEarFcJtCvm188w67vW0IrrZgb72Xe0=
 
-Name: base/assets/public/assets/LoadingMonster-CSFkzw9c.js
-SHA-256-Digest: wJlb/pOLfqYpMm2fZ4gGBfgg0L2nR54VTf94H/KxOhs=
+Name: base/assets/public/assets/LoadingMonster-BdRb09gY.css
+SHA-256-Digest: EYTrcAl/nJ7VNMcAKoQVCsLRryeonddeG/+Lln5pMLs=
 
-Name: base/assets/public/assets/LoadingMonster-CqDhX-Lk.css
-SHA-256-Digest: xhAOss5GSQlwqwzBjOPup2rvnOFTMbvGRaaMc56f5mE=
+Name: base/assets/public/assets/LoadingMonster-Bp6dhlzt.js
+SHA-256-Digest: +VomPfIrGTMLZSliw6IRqDgiyRrZLZj4nxDKPvhLo+U=
 
-Name: base/assets/public/assets/MainLayout-CkOGAn7W.css
-SHA-256-Digest: J2F43pNwRyCTT/rKTxfLJ8R26gPI5seT8FW9l8HTJPk=
+Name: base/assets/public/assets/MainLayout-CbK_uiDZ.css
+SHA-256-Digest: mXARHutcExpl4zL4OukNR3vuOSe8w+9oFENRLFefeHo=
 
-Name: base/assets/public/assets/MainLayout-DmQ6xxO_.js
-SHA-256-Digest: dBFNKHTFuDEeFa2WBoancBLgH2bWomM8yYEoAhhBzEM=
-
-Name: base/assets/public/assets/PillButton-D3Uaw3du.js
-SHA-256-Digest: 1kKu0vE3G2ufuonZWct1/b8Wu+bsBD/nH9ggdbj7uiU=
+Name: base/assets/public/assets/MainLayout-Cty8hzdd.js
+SHA-256-Digest: 95Y6SE/JqlihbLbyByoG+u6qZZFY77zGWIJcOTxSWm4=
 
 Name: base/assets/public/assets/PillButton-DX_EwWoL.css
 SHA-256-Digest: X9/sa38MQwTZHZOxSHGZ1W35AqTBDSeVPI99d3bF0yg=
 
-Name: base/assets/public/assets/PillInput-BI9VyZ0c.js
-SHA-256-Digest: hLWG0+iTcWztkC1skO8iGvNG4Sn9PR+8Fx082fxZ1Cw=
+Name: base/assets/public/assets/PillButton-eCAYzmn7.js
+SHA-256-Digest: /r8dV9K6+UlipiaMBPPysUALsG3rdQwT7DNXcK3/qro=
 
 Name: base/assets/public/assets/PillInput-Bw19-If2.css
 SHA-256-Digest: Prp2q4hYqFTz8MgnaO7V6GCOKT8oGyIx+2OjJSTHhzc=
 
-Name: base/assets/public/assets/QItem-DSVf96Az.js
-SHA-256-Digest: 8qqe5T+WY7qL2Y5bbUSdLK+5G+1sB26Fj//L74BgELY=
+Name: base/assets/public/assets/PillInput-CGPethOm.js
+SHA-256-Digest: resj4Vbj2zc6v2jjJFdkKZ6yeQqX1760xJykatIX4VI=
 
-Name: base/assets/public/assets/TransactionDetail-C29fs5sO.js
-SHA-256-Digest: laGp1gnV8gwru712S9WAXmIdsZ4GhsetrEChjGOYZLY=
+Name: base/assets/public/assets/QImg-BraRF1f1.js
+SHA-256-Digest: ++keofjeciuz0EanPvSBKsYjAxleysxqEJh3IViCHoE=
 
-Name: base/assets/public/assets/TransactionDetail-CgLTTQ7Z.css
-SHA-256-Digest: B/xXs6I3+0a1C6B9KRPSEm6sgUshq1ygbPuDkMQP2Ls=
+Name: base/assets/public/assets/QItem-B4nvqyaI.js
+SHA-256-Digest: nRhJeL7rSN4dKMLnCIcTzgBJD4IVcn72OFuvhPHT90o=
+
+Name: base/assets/public/assets/QSeparator-FBmUePdX.js
+SHA-256-Digest: sIbwUin20EUUPWZLNkiS8T2u4oxxRN9Mdto8mVF6mkI=
+
+Name: base/assets/public/assets/QrCodeDialog.vue_vue_type_script_setup
+ _true_lang-CVZ-lMRR.js
+SHA-256-Digest: JzJK92bMIG7v+m2s37z0+yO95VtHqvjPwHwqE6Xivfs=
+
+Name: base/assets/public/assets/TransactionDetail-BNBffVVu.css
+SHA-256-Digest: +aT8+fSBmUTfpZLeCMf0y68GnpbRECKu/5pw385dBHw=
+
+Name: base/assets/public/assets/TransactionDetail-CwwaXdK7.js
+SHA-256-Digest: YUMEWK4i0TwWeXMz+sne/BGtncKvrBzKR1sXOYwvcKw=
 
 Name: base/assets/public/assets/_plugin-vue_export-helper-DlAUqK2U.js
 SHA-256-Digest: mmG29nO3cvwnPuIKv0Kio/80+EtVJUEdXEUDbSxUFA4=
@@ -109,11 +131,20 @@ SHA-256-Digest: mmG29nO3cvwnPuIKv0Kio/80+EtVJUEdXEUDbSxUFA4=
 Name: base/assets/public/assets/base-De9aXXRM.svg
 SHA-256-Digest: 0k7t3BjP5X99i5Fc6XMQTQDfSVl98vyAWZMoSFj5aek=
 
-Name: base/assets/public/assets/ccip-ByXlJy0U.js
-SHA-256-Digest: MDh5tzJtdelUoLMQ67vnPZ9psNI6++q+OG5JLQoUqfc=
+Name: base/assets/public/assets/bitcoin-Da4x5qa8.js
+SHA-256-Digest: iaOd0El/akepIi0fBV3Cgjrw7vLhk8UM0fWtlMJpEXo=
 
-Name: base/assets/public/assets/chain-store-BrD8rbwP.js
-SHA-256-Digest: gft62l8VfWJIJiX4k4EdrlTHKaDfricKk8//OdA59pY=
+Name: base/assets/public/assets/bitcoin-store-3gFLD2kJ.js
+SHA-256-Digest: KC3TfgCe8OxgGrGHPnGEcFtiHIn6AV1oWZGO9J0OY48=
+
+Name: base/assets/public/assets/ccip-Cyceam4B.js
+SHA-256-Digest: qAEzVR5Da3Vw+GrRe9C9jM3C1UPbOojsNcpwgai9qVM=
+
+Name: base/assets/public/assets/chain-store-B5bYJ3TH.js
+SHA-256-Digest: 8STZVf6xmIJWku4amtVTtC45fIZEmoj+ivM2IjjHsGM=
+
+Name: base/assets/public/assets/escape-key-C3-SP3ek.js
+SHA-256-Digest: qMS3OdxCbtONtJ60fpybhC44itWMvFcU5dKhC/X9VUM=
 
 Name: base/assets/public/assets/flUhRq6tzZclQEJ-Vdg-IuiaDsNa-Dr0goTwe.
  woff
@@ -123,14 +154,14 @@ Name: base/assets/public/assets/flUhRq6tzZclQEJ-Vdg-IuiaDsNcIhQ8tQ-D-x
  -0Q06.woff2
 SHA-256-Digest: DdLJLJDcF4QmWhR4Kd8/a/sO5r+JjMNaogAeChpNazs=
 
-Name: base/assets/public/assets/focusout-DzMFof5N.js
-SHA-256-Digest: wKY3oTPXjaWnlsE0vNMg7PkAdSfGrcXw85+UViDkor8=
+Name: base/assets/public/assets/focusout-BFBXbN0A.js
+SHA-256-Digest: 6SS69P0w/vCz+mhupb0TmN85Radz0selGEbmO2VkhnU=
+
+Name: base/assets/public/assets/index-CdOfnMph.js
+SHA-256-Digest: 2K+YshBheW/8PqI8bh4wjZidGH5/WXvGEyHyeK9PJBE=
 
 Name: base/assets/public/assets/index-ChaaT3tc.css
 SHA-256-Digest: WN5G0j+4F8DMl6FAwZ9q2G3ZY5k8teGkbCR0+toldIU=
-
-Name: base/assets/public/assets/index-D71b0TiV.js
-SHA-256-Digest: xQ4Eb/zrZXp66WBJfi85A7Ub9fv2pk6llJPswzdYIik=
 
 Name: base/assets/public/assets/materialdesignicons-webfont-Dp5v-WZN.w
  off2
@@ -140,14 +171,14 @@ Name: base/assets/public/assets/materialdesignicons-webfont-PXm3-2wK.w
  off
 SHA-256-Digest: pSanbm4w1FGxU85MDYRPAw3rFmTPhi6A8ntnOJ8rZQ0=
 
-Name: base/assets/public/assets/search-store-BWpmkrKr.js
-SHA-256-Digest: M+zAv1vjX4jL/DpAUfxYgq6yKvbNSkBoq1PDLo0qBGY=
+Name: base/assets/public/assets/search-store-BzIiXSqb.js
+SHA-256-Digest: Z3oy3AUZssX3pOcnYLLVfLP0IOQv1fhKwAV0TyaMeUY=
 
 Name: base/assets/public/assets/search-store-gDNkNhGY.css
 SHA-256-Digest: naJ55Zsw8rYlBhyK1woWm2RjpxrDq7By+3/nnA4/z4A=
 
-Name: base/assets/public/assets/web-DR9Xa-jc.js
-SHA-256-Digest: 6i097/Hezw27HWTMJtctJFBaugj2QZuvLbKVj4Hci/8=
+Name: base/assets/public/assets/web-4SrG-17h.js
+SHA-256-Digest: QGe21Dyj17eHCWEIBijpykCTQaTsLVAOqpTDocz05yI=
 
 Name: base/assets/public/cordova.js
 SHA-256-Digest: bsxk9is4welU5N97Dw54Z82y3rMJEdmRjH61H/Y7Mp4=
@@ -183,7 +214,7 @@ Name: base/assets/public/icons/favicon-96x96.png
 SHA-256-Digest: M367lUksb5soCrpM4IFyArbuAzF+kHmP3MLzFz7Ju44=
 
 Name: base/assets/public/index.html
-SHA-256-Digest: k/AodgnYNGRIghowPFTLFto+w1+dnLC1IWwlYu50S/E=
+SHA-256-Digest: iDjqmZo1HPi5EnvqsrUuKQb+9SLOQoIItAAyj9hP5eg=
 
 Name: base/assets/public/logo.png
 SHA-256-Digest: VJc4DX9AmFtfAkCfapxLv9vNySPn3++5nhTqMLHMpSo=
@@ -198,7 +229,7 @@ Name: base/dex/classes2.dex
 SHA-256-Digest: e8qVM+0zGI/LbLCSmS5pncJNhU5b8yhBNNDpW+eUz/4=
 
 Name: base/manifest/AndroidManifest.xml
-SHA-256-Digest: PP9iRznzFMrk2/r/Vz+CgVwORkpX7gDdcJkMx3jX5z4=
+SHA-256-Digest: orAqIpFiHGTNi7hlz7l8BjI2cny9xjZeMjXFyhrojWk=
 
 Name: base/res/anim-v21/fragment_fast_out_extra_slow_in.xml
 SHA-256-Digest: jS4uyqNlbcrZhNtn8U31F2m/lpBVY3ruQE7hUwExG/U=

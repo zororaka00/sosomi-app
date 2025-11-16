@@ -3,7 +3,7 @@
     <!-- Loading Monster -->
     <loading-monster
       v-if="loading"
-      message="Fetching transaction from blockchain..."
+      message="Fetching transaction data..."
       @cancel="handleCancelLoading"
     />
 

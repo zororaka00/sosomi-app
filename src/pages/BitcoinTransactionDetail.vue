@@ -258,9 +258,9 @@ let queueCheckInterval: NodeJS.Timeout | null = null;
 const queueMessage = computed(() => {
   const queueStatus = bitcoinStore.getQueueStatus();
   if (queueStatus.queueLength > 0) {
-    return `Loading... (${queueStatus.queueLength} requests in queue)`;
+    return `Fetching... (${queueStatus.queueLength} requests in queue)`;
   }
-  return 'Fetching Bitcoin transaction...';
+  return 'Fetching transaction data...';
 });
 
 const inputTotal = computed(() => {

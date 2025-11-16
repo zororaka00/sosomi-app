@@ -3,7 +3,8 @@ import { ref } from 'vue';
 import { apiBtc } from 'src/boot/axios';
 
 // Rate limiting for API calls
-const RATE_LIMIT_DELAY = 2000; // 2 seconds delay between API calls
+const RATE_LIMIT_DELAY = 3000; // 3 seconds delay between API calls
+const RATE_LIMIT_ERROR_DELAY = 5000; // 5 seconds delay after rate limit error
 
 interface BitcoinTransaction {
   txid: string;
@@ -110,7 +111,19 @@ export const useBitcoinStore = defineStore('bitcoin', () => {
           lastRequestTime = Date.now();
           const result = await item.fn();
           item.resolve(result);
-        } catch (err) {
+        } catch (err: any) {
+          // Check if it's a rate limit error (HTTP 429 or specific error message)
+          const isRateLimitError =
+            err?.response?.status === 429 ||
+            err?.message?.toLowerCase().includes('rate limit') ||
+            err?.message?.toLowerCase().includes('too many');
+
+          if (isRateLimitError) {
+            console.warn(`⚠️ Rate limit detected! Waiting ${RATE_LIMIT_ERROR_DELAY}ms before retry...`);
+            await new Promise(resolve => setTimeout(resolve, RATE_LIMIT_ERROR_DELAY));
+            lastRequestTime = Date.now();
+          }
+
           item.reject(err);
         }
       }

@@ -3,7 +3,7 @@
     <!-- Loading Monster -->
     <loading-monster
       v-if="loading"
-      message="Loading address data..."
+      message="Fetching address data..."
       @cancel="handleCancelLoading"
     />
 
@@ -36,8 +36,18 @@
               />
               <div class="address-info">
                 <div class="address-label">Address</div>
-                <wallet-address-chip color="primary" :address="walletInfo.address" :is-transaction-hash="true" />
+                <wallet-address-chip color="primary" :address="walletInfo.address" :is-transaction-hash="false" :truncate="true" />
               </div>
+              <q-btn
+                flat
+                round
+                icon="mdi-qrcode"
+                size="md"
+                color="primary"
+                @click="showQrCode"
+              >
+                <q-tooltip>Show QR</q-tooltip>
+              </q-btn>
             </div>
           </q-card-section>
         </base-card>
@@ -153,11 +163,20 @@
         </base-card>
       </div>
     </div>
+
+    <!-- QR Code Dialog -->
+    <qr-code-dialog
+      v-if="walletInfo && currentChain"
+      v-model="showQrDialog"
+      :address="walletInfo.address"
+      :chain-name="currentChain.name"
+      :chain-logo="currentChain.iconUrl"
+    />
   </q-page>
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, computed } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { storeToRefs } from 'pinia';
 import { type Address, isAddress as viemIsAddress } from 'viem';
@@ -171,6 +190,7 @@ import TokenRow from '../components/TokenRow.vue';
 import LoadingMonster from '../components/LoadingMonster.vue';
 import PillButton from '../components/PillButton.vue';
 import PillInput from '../components/PillInput.vue';
+import QrCodeDialog from '../components/QrCodeDialog.vue';
 
 const route = useRoute();
 const router = useRouter();
@@ -178,11 +198,14 @@ const router = useRouter();
 const chainStore = useChainStore();
 const searchStore = useSearchStore();
 const priceStore = usePriceStore();
-const { currentChain, loading, error } = storeToRefs(chainStore);
+const { loading, error } = storeToRefs(chainStore);
+
+const currentChain = computed(() => chainStore.currentChain);
 
 const walletInfo = ref<Awaited<ReturnType<typeof chainStore.getWalletInfo>> | null>(null);
 const customTokenAddress = ref('');
 const addingToken = ref(false);
+const showQrDialog = ref(false);
 
 const isValidAddress = (addr: string): boolean => {
   return viemIsAddress(addr);
@@ -191,6 +214,11 @@ const isValidAddress = (addr: string): boolean => {
 const handleCancelLoading = () => {
   // Navigate back to home page
   router.push({ name: 'home' });
+};
+
+const showQrCode = () => {
+  if (!walletInfo.value) return;
+  showQrDialog.value = true;
 };
 
 const loadAddressInfo = async () => {
@@ -429,11 +457,6 @@ onMounted(() => {
 
   .page-title {
     font-size: 24px;
-  }
-
-  .address-header {
-    flex-direction: column;
-    align-items: flex-start;
   }
 
   .balance-value {

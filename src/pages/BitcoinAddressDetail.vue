@@ -38,6 +38,16 @@
                 <div class="address-label">Address</div>
                 <wallet-address-chip color="primary" :address="addressInfo.address" :is-transaction-hash="false" :truncate="true" />
               </div>
+              <q-btn
+                flat
+                round
+                icon="mdi-qrcode"
+                size="md"
+                color="primary"
+                @click="showQrCode"
+              >
+                <q-tooltip>Show QR</q-tooltip>
+              </q-btn>
             </div>
           </q-card-section>
         </base-card>
@@ -154,7 +164,7 @@
 
                 <q-item-section>
                   <q-item-label class="tx-txid">
-                    {{ tx.txid.substring(0, 16) }}...{{ tx.txid.substring(tx.txid.length - 16) }}
+                    {{ tx.txid.substring(0, 8) }}...{{ tx.txid.substring(tx.txid.length - 8) }}
                   </q-item-label>
                   <q-item-label caption>
                     <span v-if="tx.status.block_time">
@@ -202,6 +212,15 @@
         </base-card>
       </div>
     </div>
+
+    <!-- QR Code Dialog -->
+    <qr-code-dialog
+      v-if="addressInfo"
+      v-model="showQrDialog"
+      :address="addressInfo.address"
+      chain-name="Bitcoin"
+      :chain-logo="bitcoinIcon"
+    />
   </q-page>
 </template>
 
@@ -215,9 +234,12 @@ import BaseCard from '../components/BaseCard.vue';
 import WalletAddressChip from '../components/WalletAddressChip.vue';
 import LoadingMonster from '../components/LoadingMonster.vue';
 import PillButton from '../components/PillButton.vue';
+import QrCodeDialog from '../components/QrCodeDialog.vue';
+import bitcoinIcon from '../assets/bitcoin.svg';
 
 const route = useRoute();
 const router = useRouter();
+const showQrDialog = ref(false);
 
 const bitcoinStore = useBitcoinStore();
 const priceStore = usePriceStore();
@@ -234,9 +256,9 @@ let queueCheckInterval: NodeJS.Timeout | null = null;
 const queueMessage = computed(() => {
   const queueStatus = bitcoinStore.getQueueStatus();
   if (queueStatus.queueLength > 0) {
-    return `Loading... (${queueStatus.queueLength} requests in queue)`;
+    return `Fetching... (${queueStatus.queueLength} requests in queue)`;
   }
-  return 'Fetching Bitcoin address data...';
+  return 'Fetching address data...';
 });
 
 const balance = computed(() => {
@@ -273,6 +295,11 @@ const navigateToTransaction = (txid: string) => {
 
 const handleCancelLoading = () => {
   router.push({ name: 'home' });
+};
+
+const showQrCode = () => {
+  if (!addressInfo.value) return;
+  showQrDialog.value = true;
 };
 
 const loadAddressData = async () => {
