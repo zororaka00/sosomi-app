@@ -76,6 +76,8 @@ const handleInput = (value: string | number | null) => {
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
     border: 1px solid #e5e7eb;
     transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
 
     &:hover {
       box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
@@ -104,10 +106,13 @@ const handleInput = (value: string | number | null) => {
   :deep(.q-field__prepend),
   :deep(.q-field__append) {
     color: var(--text-color);
-    height: 48px;
+    height: 100%;
+    display: flex;
     align-items: center;
-    padding-top: 0;
-    padding-bottom: 0;
+    padding-top: 0 !important;
+    padding-bottom: 0 !important;
+    margin-top: 0 !important;
+    margin-bottom: 0 !important;
   }
 
   :deep(.q-field__prepend) {
@@ -121,6 +126,8 @@ const handleInput = (value: string | number | null) => {
   :deep(.q-icon) {
     font-size: 20px;
     color: #6b7280;
+    display: flex;
+    align-items: center;
   }
 
   :deep(input::placeholder) {
