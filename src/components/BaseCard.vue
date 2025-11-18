@@ -32,16 +32,16 @@ withDefaults(
 <style scoped>
 .base-card {
   border-radius: 16px;
-  background: white;
+  background: var(--color-bg-secondary);
   transition: all 0.3s ease;
 }
 
 .base-card--bordered {
-  border: 1px solid #e5e7eb;
+  border: 1px solid var(--color-border-primary);
 }
 
 .base-card--elevated {
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06), 0 1px 2px rgba(0, 0, 0, 0.04);
+  box-shadow: var(--shadow-sm);
 }
 
 .base-card--hoverable {
@@ -50,7 +50,7 @@ withDefaults(
 
 .base-card--hoverable:hover {
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  box-shadow: var(--shadow-lg);
 }
 
 .base-card--hoverable:active {

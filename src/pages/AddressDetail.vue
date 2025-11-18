@@ -319,15 +319,17 @@ onMounted(() => {
 .page-title {
   font-size: 32px;
   font-weight: 700;
-  color: #111827;
+  color: var(--color-text-primary);
   margin: 0 0 4px;
   line-height: 1.2;
+  transition: color 0.3s ease;
 }
 
 .page-subtitle {
   font-size: 14px;
-  color: #6b7280;
+  color: var(--color-text-secondary);
   margin: 0;
+  transition: color 0.3s ease;
 }
 
 .address-card {
@@ -348,10 +350,11 @@ onMounted(() => {
 .address-label {
   font-size: 13px;
   font-weight: 600;
-  color: #6b7280;
+  color: var(--color-text-secondary);
   text-transform: uppercase;
   letter-spacing: 0.05em;
   margin-bottom: 8px;
+  transition: color 0.3s ease;
 }
 
 .balance-card {
@@ -368,8 +371,9 @@ onMounted(() => {
 .card-title {
   font-size: 18px;
   font-weight: 700;
-  color: #111827;
+  color: var(--color-text-primary);
   margin: 0;
+  transition: color 0.3s ease;
 }
 
 .balance-amount {
@@ -381,13 +385,15 @@ onMounted(() => {
 .balance-value {
   font-size: 36px;
   font-weight: 700;
-  color: #111827;
+  color: var(--color-text-primary);
+  transition: color 0.3s ease;
 }
 
 .balance-symbol {
   font-size: 20px;
   font-weight: 600;
-  color: #6b7280;
+  color: var(--color-text-secondary);
+  transition: color 0.3s ease;
 }
 
 .tokens-card {
@@ -400,8 +406,9 @@ onMounted(() => {
 
 .card-subtitle {
   font-size: 14px;
-  color: #6b7280;
+  color: var(--color-text-secondary);
   margin: 0 0 20px;
+  transition: color 0.3s ease;
 }
 
 .add-token-form {
@@ -417,15 +424,17 @@ onMounted(() => {
 .saved-tokens-section {
   margin-bottom: 20px;
   padding: 16px;
-  background-color: #f9fafb;
+  background-color: var(--color-bg-tertiary);
   border-radius: 8px;
+  transition: background-color 0.3s ease;
 }
 
 .saved-tokens-title {
   font-size: 14px;
   font-weight: 600;
-  color: #6b7280;
+  color: var(--color-text-secondary);
   margin-bottom: 12px;
+  transition: color 0.3s ease;
 }
 
 .saved-tokens-chips {

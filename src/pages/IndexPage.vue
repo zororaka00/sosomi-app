@@ -16,8 +16,6 @@
             v-model="searchQuery"
             placeholder="Enter tx hash or address"
             prepend-icon="mdi-magnify"
-            bg-color="#fafafa"
-            text-color="#111827"
             class="search-input"
             @keyup.enter="handleSearch"
           >
@@ -37,8 +35,6 @@
           <pill-button
             label="Search"
             icon="mdi-magnify"
-            bg-color="#3b82f6"
-            text-color="#ffffff"
             :disabled="!searchQuery || searching"
             @click="handleSearch"
             class="search-btn"
@@ -253,17 +249,19 @@ const truncateAddress = (str: string): string => {
 .hero-title {
   font-size: 48px;
   font-weight: 800;
-  color: #111827;
+  color: var(--color-text-primary);
   margin: 0 0 16px;
   letter-spacing: -0.02em;
   line-height: 1.1;
+  transition: color 0.3s ease;
 }
 
 .hero-subtitle {
   font-size: 18px;
-  color: #6b7280;
+  color: var(--color-text-secondary);
   margin: 0;
   line-height: 1.6;
+  transition: color 0.3s ease;
 }
 
 /* Search Card */
@@ -316,8 +314,9 @@ const truncateAddress = (str: string): string => {
 .recent-title {
   font-size: 18px;
   font-weight: 700;
-  color: #111827;
+  color: var(--color-text-primary);
   margin: 0;
+  transition: color 0.3s ease;
 }
 
 .recent-item {
@@ -329,11 +328,11 @@ const truncateAddress = (str: string): string => {
 }
 
 .recent-item:active {
-  background-color: #e5e7eb;
+  background-color: var(--color-bg-tertiary);
 }
 
 .recent-item:hover {
-  background-color: #f9fafb;
+  background-color: var(--color-bg-tertiary);
 }
 
 .recent-query {
