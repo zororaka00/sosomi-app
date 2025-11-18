@@ -77,11 +77,11 @@ const handleClick = () => {
   gap: 12px;
   padding: 12px 16px;
   border-radius: 12px;
-  transition: background-color 0.2s ease;
+  transition: background-color 0.3s ease;
 }
 
 .token-row:hover {
-  background-color: #f9fafb;
+  background-color: var(--color-bg-tertiary);
 }
 
 .token-row__icon {
@@ -96,16 +96,18 @@ const handleClick = () => {
 .token-row__name {
   font-size: 15px;
   font-weight: 600;
-  color: #111827;
+  color: var(--color-text-primary);
   margin-bottom: 2px;
+  transition: color 0.3s ease;
 }
 
 .token-row__subtitle {
   font-size: 13px;
-  color: #6b7280;
+  color: var(--color-text-secondary);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  transition: color 0.3s ease;
 }
 
 .token-row__balance {
@@ -116,12 +118,14 @@ const handleClick = () => {
 .token-row__amount {
   font-size: 15px;
   font-weight: 600;
-  color: #111827;
+  color: var(--color-text-primary);
   margin-bottom: 2px;
+  transition: color 0.3s ease;
 }
 
 .token-row__usd {
   font-size: 13px;
-  color: #6b7280;
+  color: var(--color-text-secondary);
+  transition: color 0.3s ease;
 }
 </style>

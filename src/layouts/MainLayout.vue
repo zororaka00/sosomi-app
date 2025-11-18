@@ -9,6 +9,7 @@
         </q-toolbar-title>
 
         <div class="toolbar__actions">
+          <dark-mode-toggle />
           <network-selector />
         </div>
       </q-toolbar>
@@ -26,17 +27,20 @@
 
 <script setup lang="ts">
 import NetworkSelector from '../components/NetworkSelector.vue';
+import DarkModeToggle from '../components/DarkModeToggle.vue';
 </script>
 
 <style scoped>
 .layout {
-  background-color: #fafafa;
+  background-color: var(--color-bg-primary);
+  transition: background-color 0.3s ease;
 }
 
 .header {
-  background-color: white;
-  border-bottom: 1px solid #e5e7eb;
+  background-color: var(--color-bg-secondary);
+  border-bottom: 1px solid var(--color-border-primary);
   box-shadow: none;
+  transition: background-color 0.3s ease, border-color 0.3s ease;
 }
 
 .toolbar {
@@ -63,8 +67,9 @@ import NetworkSelector from '../components/NetworkSelector.vue';
 .logo-text {
   font-size: 24px;
   font-weight: 700;
-  color: #111827;
+  color: var(--color-text-primary);
   letter-spacing: -0.02em;
+  transition: color 0.3s ease;
 }
 
 .toolbar__actions {
@@ -75,7 +80,8 @@ import NetworkSelector from '../components/NetworkSelector.vue';
 }
 
 .page-container {
-  background-color: #fafafa;
+  background-color: var(--color-bg-primary);
+  transition: background-color 0.3s ease;
 }
 
 /* Page transitions */

@@ -332,7 +332,8 @@ onUnmounted(() => {
 
 .bitcoin-transaction-page {
   min-height: 100vh;
-  background: #fafafa;
+  background: var(--color-bg-primary);
+  transition: background-color 0.3s ease;
 }
 
 .page-content {
@@ -349,20 +350,23 @@ onUnmounted(() => {
 }
 
 .back-btn {
-  color: #6b7280;
+  color: var(--color-text-secondary);
+  transition: color 0.3s ease;
 }
 
 .page-title {
   font-size: 24px;
   font-weight: 700;
-  color: #111827;
+  color: var(--color-text-primary);
   margin: 0;
+  transition: color 0.3s ease;
 }
 
 .page-subtitle {
   font-size: 14px;
-  color: #6b7280;
+  color: var(--color-text-secondary);
   margin: 4px 0 0;
+  transition: color 0.3s ease;
 }
 
 .status-card {
@@ -382,8 +386,9 @@ onUnmounted(() => {
 
 .status-label {
   font-size: 14px;
-  color: #6b7280;
+  color: var(--color-text-secondary);
   margin-bottom: 4px;
+  transition: color 0.3s ease;
 }
 
 .status-value {
@@ -419,14 +424,16 @@ onUnmounted(() => {
 .info-label {
   font-size: 14px;
   font-weight: 600;
-  color: #6b7280;
+  color: var(--color-text-secondary);
+  transition: color 0.3s ease;
 }
 
 .info-value {
   font-size: 14px;
-  color: #111827;
+  color: var(--color-text-primary);
   display: flex;
   align-items: center;
+  transition: color 0.3s ease;
 }
 
 .info-usd {
@@ -453,10 +460,11 @@ onUnmounted(() => {
 .card-title {
   font-size: 18px;
   font-weight: 700;
-  color: #111827;
+  color: var(--color-text-primary);
   margin: 0 0 16px;
   display: flex;
   align-items: center;
+  transition: color 0.3s ease;
 }
 
 .input-item,
@@ -481,7 +489,8 @@ onUnmounted(() => {
   display: flex;
   align-items: center;
   font-weight: 600;
-  color: #6b7280;
+  color: var(--color-text-secondary);
+  transition: color 0.3s ease;
 }
 
 .error-container {

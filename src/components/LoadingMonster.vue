@@ -92,6 +92,11 @@ const handleCancel = () => {
   justify-content: center;
   z-index: 9999;
   animation: fadeIn 0.3s ease-out;
+  transition: background-color 0.3s ease;
+}
+
+.body--dark .loading-monster-overlay {
+  background: rgba(15, 17, 23, 0.98);
 }
 
 @keyframes fadeIn {
@@ -346,11 +351,12 @@ const handleCancel = () => {
 .loading-message {
   font-size: 18px;
   font-weight: 600;
-  color: #111827;
+  color: var(--color-text-primary);
   margin-bottom: 20px;
   opacity: 0;
   animation: fadeIn 0.5s ease-in forwards;
   animation-delay: 0.3s;
+  transition: color 0.3s ease;
 }
 
 .loading-dots {
