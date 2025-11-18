@@ -384,15 +384,17 @@ onMounted(() => {
 .page-title {
   font-size: 32px;
   font-weight: 700;
-  color: #111827;
+  color: var(--color-text-primary);
   margin: 0 0 4px;
   line-height: 1.2;
+  transition: color 0.3s ease;
 }
 
 .page-subtitle {
   font-size: 14px;
-  color: #6b7280;
+  color: var(--color-text-secondary);
   margin: 0;
+  transition: color 0.3s ease;
 }
 
 .status-card {
@@ -413,10 +415,11 @@ onMounted(() => {
 .status-label {
   font-size: 13px;
   font-weight: 600;
-  color: #6b7280;
+  color: var(--color-text-secondary);
   text-transform: uppercase;
   letter-spacing: 0.05em;
   margin-bottom: 4px;
+  transition: color 0.3s ease;
 }
 
 .status-value {
@@ -451,14 +454,16 @@ onMounted(() => {
 .info-label {
   font-size: 14px;
   font-weight: 600;
-  color: #6b7280;
+  color: var(--color-text-secondary);
+  transition: color 0.3s ease;
 }
 
 .info-value {
   font-size: 14px;
-  color: #111827;
+  color: var(--color-text-primary);
   display: flex;
   align-items: center;
+  transition: color 0.3s ease;
 }
 
 .info-usd {
@@ -485,8 +490,9 @@ onMounted(() => {
 .card-title {
   font-size: 18px;
   font-weight: 700;
-  color: #111827;
+  color: var(--color-text-primary);
   margin: 0 0 16px;
+  transition: color 0.3s ease;
 }
 
 .input-card {
@@ -504,8 +510,9 @@ onMounted(() => {
 .log-token-name {
   font-size: 16px;
   font-weight: 700;
-  color: #111827;
+  color: var(--color-text-primary);
   margin-bottom: 4px;
+  transition: color 0.3s ease;
 }
 
 .log-type {
@@ -513,8 +520,9 @@ onMounted(() => {
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.05em;
-  color: #6b7280;
+  color: var(--color-text-secondary);
   margin-bottom: 12px;
+  transition: color 0.3s ease;
 }
 
 .log-addresses {
@@ -533,39 +541,44 @@ onMounted(() => {
 .log-label {
   font-size: 13px;
   font-weight: 600;
-  color: #6b7280;
+  color: var(--color-text-secondary);
   min-width: 50px;
+  transition: color 0.3s ease;
 }
 
 .log-value {
   font-size: 14px;
-  color: #111827;
+  color: var(--color-text-primary);
   margin: 8px 0;
   display: flex;
   align-items: center;
+  transition: color 0.3s ease;
 }
 
 .log-contract {
   font-size: 12px;
-  color: #6b7280;
+  color: var(--color-text-secondary);
   margin-top: 8px;
   display: flex;
   align-items: center;
   gap: 4px;
+  transition: color 0.3s ease;
 }
 
 .input-data {
-  background-color: #f9fafb;
+  background-color: var(--color-bg-tertiary);
   border-radius: 8px;
   padding: 16px;
   overflow-x: auto;
+  transition: background-color 0.3s ease;
 }
 
 .input-data code {
   font-family: 'Roboto Mono', monospace;
   font-size: 12px;
-  color: #374151;
+  color: var(--color-text-secondary);
   word-break: break-all;
+  transition: color 0.3s ease;
 }
 
 .loading-container,

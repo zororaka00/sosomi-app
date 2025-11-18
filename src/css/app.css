@@ -4,6 +4,53 @@
 @import './animations.css';
 @import './transitions.css';
 
+/* CSS Variables for Theme */
+:root {
+  /* Light Theme Colors */
+  --color-bg-primary: #fafafa;
+  --color-bg-secondary: #ffffff;
+  --color-bg-tertiary: #f9fafb;
+  --color-bg-elevated: #ffffff;
+  
+  --color-text-primary: #111827;
+  --color-text-secondary: #6b7280;
+  --color-text-tertiary: #9ca3af;
+  
+  --color-border-primary: #e5e7eb;
+  --color-border-secondary: #d1d5db;
+  --color-border-hover: #9ca3af;
+  
+  --color-accent-primary: #3b82f6;
+  --color-accent-hover: #2563eb;
+  
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 2px 8px rgba(0, 0, 0, 0.06);
+  --shadow-lg: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+/* Dark Theme Colors */
+.body--dark {
+  --color-bg-primary: #0f1117;
+  --color-bg-secondary: #1a1d28;
+  --color-bg-tertiary: #21242f;
+  --color-bg-elevated: #252932;
+  
+  --color-text-primary: #f3f4f6;
+  --color-text-secondary: #d1d5db;
+  --color-text-tertiary: #9ca3af;
+  
+  --color-border-primary: #2a2d3a;
+  --color-border-secondary: #3f4452;
+  --color-border-hover: #4b5563;
+  
+  --color-accent-primary: #6366f1;
+  --color-accent-hover: #818cf8;
+  
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 2px 8px rgba(0, 0, 0, 0.4);
+  --shadow-lg: 0 4px 12px rgba(0, 0, 0, 0.5);
+}
+
 /* Reset & Base Styles */
 * {
   box-sizing: border-box;
@@ -21,8 +68,9 @@ body {
   font-family: 'Roboto', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Oxygen',
     'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
     sans-serif;
-  background-color: #fafafa;
-  color: #111827;
+  background-color: var(--color-bg-primary);
+  color: var(--color-text-primary);
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 /* Typography */
@@ -56,21 +104,24 @@ a:hover {
 }
 
 ::-webkit-scrollbar-track {
-  background: #f1f1f1;
+  background: var(--color-bg-tertiary);
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #c1c1c1;
+  background: var(--color-border-secondary);
   border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #a8a8a8;
+  background: var(--color-border-hover);
 }
 
-/* Quasar Component Overrides for Light Theme */
+/* Quasar Component Overrides */
 .q-card {
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  box-shadow: var(--shadow-sm);
+  background-color: var(--color-bg-secondary);
+  color: var(--color-text-primary);
+  transition: background-color 0.3s ease, box-shadow 0.3s ease;
 }
 
 .q-btn {
@@ -80,10 +131,25 @@ a:hover {
 
 .q-field--outlined .q-field__control {
   border-radius: 8px;
+  background-color: var(--color-bg-secondary);
+  border-color: var(--color-border-primary);
 }
 
 .q-list--separator > .q-item-type + .q-item-type {
-  border-top-color: #e5e7eb;
+  border-top-color: var(--color-border-primary);
+}
+
+.q-item {
+  color: var(--color-text-primary);
+}
+
+.q-item__label--caption {
+  color: var(--color-text-secondary);
+}
+
+.q-menu {
+  background-color: var(--color-bg-elevated);
+  border: 1px solid var(--color-border-primary);
 }
 
 /* Utility Classes */
