@@ -348,7 +348,8 @@ onUnmounted(() => {
 
 .bitcoin-address-page {
   min-height: 100vh;
-  background: #fafafa;
+  background: var(--color-bg-primary);
+  transition: background-color 0.3s ease;
 }
 
 .page-content {
@@ -365,20 +366,23 @@ onUnmounted(() => {
 }
 
 .back-btn {
-  color: #6b7280;
+  color: var(--color-text-secondary);
+  transition: color 0.3s ease;
 }
 
 .page-title {
   font-size: 24px;
   font-weight: 700;
-  color: #111827;
+  color: var(--color-text-primary);
   margin: 0;
+  transition: color 0.3s ease;
 }
 
 .page-subtitle {
   font-size: 14px;
-  color: #6b7280;
+  color: var(--color-text-secondary);
   margin: 4px 0 0;
+  transition: color 0.3s ease;
 }
 
 .address-card {
@@ -397,9 +401,10 @@ onUnmounted(() => {
 
 .address-label {
   font-size: 14px;
-  color: #6b7280;
+  color: var(--color-text-secondary);
   margin-bottom: 8px;
   font-weight: 600;
+  transition: color 0.3s ease;
 }
 
 .balance-card {
@@ -416,10 +421,11 @@ onUnmounted(() => {
 .card-title {
   font-size: 18px;
   font-weight: 700;
-  color: #111827;
+  color: var(--color-text-primary);
   margin: 0;
   display: flex;
   align-items: center;
+  transition: color 0.3s ease;
 }
 
 .balance-amount {
@@ -431,13 +437,15 @@ onUnmounted(() => {
 .balance-value {
   font-size: 32px;
   font-weight: 700;
-  color: #111827;
+  color: var(--color-text-primary);
+  transition: color 0.3s ease;
 }
 
 .balance-symbol {
   font-size: 18px;
   font-weight: 600;
-  color: #6b7280;
+  color: var(--color-text-secondary);
+  transition: color 0.3s ease;
 }
 
 .balance-usd {
@@ -458,20 +466,23 @@ onUnmounted(() => {
 
 .stat-item {
   padding: 16px;
-  background: #f9fafb;
+  background: var(--color-bg-tertiary);
   border-radius: 8px;
+  transition: background-color 0.3s ease;
 }
 
 .stat-label {
   font-size: 14px;
-  color: #6b7280;
+  color: var(--color-text-secondary);
   margin-bottom: 8px;
+  transition: color 0.3s ease;
 }
 
 .stat-value {
   font-size: 18px;
   font-weight: 700;
-  color: #111827;
+  color: var(--color-text-primary);
+  transition: color 0.3s ease;
 }
 
 .utxo-item,
@@ -486,22 +497,25 @@ onUnmounted(() => {
 .utxo-details {
   display: flex;
   align-items: center;
-  color: #6b7280;
+  color: var(--color-text-secondary);
+  transition: color 0.3s ease;
 }
 
 .tx-txid {
   font-family: 'Roboto Mono', monospace;
   font-size: 14px;
-  color: #111827;
+  color: var(--color-text-primary);
   margin-bottom: 4px;
+  transition: color 0.3s ease;
 }
 
 .tx-value {
   font-weight: 600;
-  color: #111827;
+  color: var(--color-text-primary);
   display: flex;
   align-items: center;
   gap: 4px;
+  transition: color 0.3s ease;
 }
 
 // Mobile responsive - stack transaction details vertically

@@ -105,16 +105,16 @@ const handleChainSwitch = (chainId: string) => {
 }
 
 .network-selector__btn {
-  border-color: #e5e7eb;
-  color: #111827;
+  border-color: var(--color-border-primary);
+  color: var(--color-text-primary);
   font-weight: 500;
   padding: 8px 16px;
-  transition: all 0.2s ease;
+  transition: all 0.3s ease;
 }
 
 .network-selector__btn:hover {
-  border-color: #d1d5db;
-  background-color: #f9fafb;
+  border-color: var(--color-border-secondary);
+  background-color: var(--color-bg-tertiary);
 }
 
 .network-selector__content {
@@ -138,7 +138,7 @@ const handleChainSwitch = (chainId: string) => {
 
 .network-selector__menu {
   border-radius: 12px;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+  box-shadow: var(--shadow-lg);
 }
 
 .network-item {
@@ -148,10 +148,10 @@ const handleChainSwitch = (chainId: string) => {
 }
 
 .network-item:hover {
-  background-color: #f3f4f6;
+  background-color: var(--color-bg-tertiary);
 }
 
 .network-item.q-item--active {
-  background-color: #eff6ff;
+  background-color: var(--color-bg-tertiary);
 }
 </style>

@@ -1,7 +1,6 @@
 <template>
   <button
     :class="['pill-button', { 'pill-button--disabled': disabled }]"
-    :style="buttonStyle"
     :disabled="disabled"
     @click="handleClick"
   >
@@ -13,16 +12,10 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue';
-
 interface Props {
   label?: string;
   icon?: string;
   iconSize?: string;
-  bgColor?: string;
-  textColor?: string;
-  height?: string;
-  paddingX?: string;
   disabled?: boolean;
 }
 
@@ -30,23 +23,12 @@ const props = withDefaults(defineProps<Props>(), {
   label: '',
   icon: '',
   iconSize: '18px',
-  bgColor: '#2A2C36',
-  textColor: '#D0D0D8',
-  height: '48px',
-  paddingX: '20px',
   disabled: false,
 });
 
 const emit = defineEmits<{
   (e: 'click', event: MouseEvent): void;
 }>();
-
-const buttonStyle = computed(() => ({
-  '--bg-color': props.bgColor,
-  '--text-color': props.textColor,
-  '--height': props.height,
-  '--padding-x': props.paddingX,
-}));
 
 const handleClick = (event: MouseEvent) => {
   if (!props.disabled) {
@@ -61,32 +43,31 @@ const handleClick = (event: MouseEvent) => {
   align-items: center;
   justify-content: center;
   gap: 8px;
-  height: var(--height);
-  padding: 0 var(--padding-x);
-  background: var(--bg-color);
-  color: var(--text-color);
+  height: 48px;
+  padding: 0 24px;
+  background: var(--color-accent-primary);
+  color: white;
   border: none;
   border-radius: 9999px;
   font-size: 14px;
-  font-weight: 500;
+  font-weight: 600;
   text-align: center;
   cursor: pointer;
-  transition: all 0.2s ease;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+  box-shadow: var(--shadow-sm);
   outline: none;
   user-select: none;
   white-space: nowrap;
 
   &:hover:not(.pill-button--disabled) {
-    transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-    filter: brightness(1.1);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-lg);
+    background: var(--color-accent-hover);
   }
 
   &:active:not(.pill-button--disabled) {
     transform: translateY(0);
-    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
-    filter: brightness(0.95);
+    box-shadow: var(--shadow-sm);
   }
 
   &--disabled {
@@ -100,7 +81,7 @@ const handleClick = (event: MouseEvent) => {
   }
 
   &__text {
-    font-weight: 500;
+    font-weight: 600;
   }
 }
 </style>
